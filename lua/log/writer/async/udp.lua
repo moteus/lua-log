@@ -1,4 +1,21 @@
-local llthread = require "llthreads.ex"
+local ok, llthreads = pcall( require, "llthreads.ex" )
+local runstring
+if ok then
+  runstring = llthreads.runstring
+else
+  llthreads = require "llthreads"
+  runstring = function(code, ...)
+    code = [[
+    local lua_init = os.getenv("lua_init")
+    if lua_init and #lua_init > 0 then
+      if lua_init:sub(1,1) == '@' then dofile(lua_init:sub(2))
+      else assert(loadstring(lua_init))() end
+    end
+    ]] .. code 
+    return llthreads.new(code, ...)
+  end
+end
+
 local cmsgpack = require "cmsgpack.safe"
 local socket   = require "socket"
 
@@ -9,7 +26,7 @@ local function create_socket(host, port, maker)
   assert(skt:settimeout(0.1))
   assert(skt:setpeername(host, port))
 
-  local child_thread = llthread.runstring(Worker, host, port, maker)
+  local child_thread = runstring(Worker, host, port, maker)
   child_thread:start(true)
 
   socket.sleep(0.5)
