@@ -13,14 +13,20 @@ local function create(ctx, addr, maker)
   log_ctx = log_ctx or ctx or zmq.assert(zmq.init(1))
 
   local skt = zmq.assert(log_ctx:socket(zmq.PUSH))
+  local skt_sync = zmq.assert(log_ctx:socket(zmq.PAIR))
+
   skt:set_sndtimeo(500)
   skt:set_linger(1000)
-  zmq.assert(skt:bind(addr))
+  zmq.assert(skt_sync:bind(addr .. '.sync'))
 
   local child_thread = zthreads.runstring(log_ctx, Worker, addr, maker)
   child_thread:start(true)
 
+  zmq.assert(skt_sync:recv())
+  skt_sync:close()
 
+  zmq.assert(skt:connect(addr))
+  
   return function(msg, lvl, now)
     local m = cmsgpack.pack(msg, lvl, now:fmt("%F %T"))
     skt:send(m)
@@ -40,7 +46,12 @@ local writer = assert(loadstring(maker))()
 local ctx = zthreads.get_parent_ctx()
 
 local skt = zassert(ctx:socket(zmq.PULL))
-zassert(skt:connect(address))
+zassert(skt:bind(address))
+local skt_sync = zmq.assert(ctx:socket(zmq.PAIR))
+zmq.assert(skt_sync:connect(address .. '.sync'))
+skt_sync:send("")
+skt_sync:close()
+
 while(true)do
   local msg, err = skt:recv_all()
   if not msg then 
