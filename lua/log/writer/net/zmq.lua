@@ -1,13 +1,16 @@
-local zmq = require "lzmq"
+local ok, zmq = pcall(require, "lzmq")
+if not ok then zmq = require "zmq" end
+
+local zassert = zmq.assert or assert
 
 local log_ctx
 
 local function create_socket(ctx, addr)
-  log_ctx = log_ctx or ctx or zmq.assert(zmq.init(1))
+  log_ctx = log_ctx or ctx or zassert(zmq.init(1))
   local skt = log_ctx:socket(zmq.PUB)
   skt:set_sndtimeo(100)
   skt:set_linger(100)
-  zmq.assert(skt:connect(addr))
+  zassert(skt:connect(addr))
   return skt
 end
 
