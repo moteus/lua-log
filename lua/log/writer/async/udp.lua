@@ -49,15 +49,16 @@ while(true)do
   local msg, err = uskt:receivefrom()
   if msg then 
     local msg, lvl, now = cmsgpack.unpack(msg)
-    now = date(now)
-    writer(msg, lvl, now)
+    if msg and lvl and now then
+      now = date(now)
+      writer(msg, lvl, now)
+    end
   else
     if err ~= 'timeout' then
-      io.stderror:write('async_logger: ', zmq.strerror(err))
+      io.stderror:write('async_logger: ', err)
     end
   end
 end
-
 ]=]
 
 

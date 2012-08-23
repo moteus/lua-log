@@ -94,8 +94,10 @@ while(true)do
     io.stderr:write('async_logger: ', err, zstrerror(err))
   else
     local msg, lvl, now = cmsgpack.unpack(msg)
-    now = date(now)
-    writer(msg, lvl, now)
+    if msg and lvl and now then
+      now = date(now)
+      writer(msg, lvl, now)
+    end
   end
 end
 
