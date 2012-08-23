@@ -2,6 +2,7 @@ local date = require "date"
 local lfs  = require "lfs"
 
 local DIR_SEP = package.config:sub(1,1)
+local IS_WINDOWS = DIR_SEP == '\\'
 
 local function remove_dir_end(str)
   while(str ~= '')do
@@ -17,10 +18,79 @@ local function ensure_dir_end(str)
   return remove_dir_end(str) .. DIR_SEP 
 end
 
-local attrib = lfs.attributes
+local function path_normolize_sep(P)
+  return (string.gsub(P, '\\', DIR_SEP):gsub('/', DIR_SEP))
+end
+
+local function path_fullpath(P)
+  P = path_normolize_sep(P)
+  local ch1, ch2 = P:sub(1,1), P:sub(2,2)
+  if IS_WINDOWS then
+    if ch1 == DIR_SEP then         -- \temp => c:\temp
+      local cwd = lfs.currentdir()
+      local disk = cwd:sub(1,2)
+      P = disk .. P
+    elseif ch1 == '~' then         -- ~\temp
+      local base = os.getenv('USERPROFILE') or (os.getenv('HOMEDRIVE') .. os.getenv('HOMEPATH'))
+      P = ((ch2 == DIR_SEP) and remove_dir_end(base) or ensure_dir_end(base)) .. string.sub(P,2)
+    elseif ch2 ~= ':' then
+      P = ensure_dir_end(lfs.currentdir()) .. P
+    end
+  else
+    if ch1 == '~' then         -- ~/temp
+      local base = os.getenv('HOME')
+      P = ((ch2 == DIR_SEP) and remove_dir_end(base) or ensure_dir_end(base)) .. string.sub(P,2)
+    else 
+      P = ensure_dir_end(lfs.currentdir()) .. P
+    end
+  end
+
+  P = string.gsub(P, DIR_SEP .. '%.' .. DIR_SEP, DIR_SEP):gsub(DIR_SEP .. DIR_SEP, DIR_SEP)
+  while true do
+    local first, last = string.find(P, DIR_SEP .. "[^".. DIR_SEP .. "]+" .. DIR_SEP .. '%.%.' .. DIR_SEP)
+    if not first then break end
+    P = string.sub(P, 1, first) .. string.sub(P, last+1)
+  end
+
+  return P
+end
+
+local function attrib(P, ...)
+  if IS_WINDOWS then
+    if #P < 4 and P:sub(2,2) == ':' then 
+      P = ensure_dir_end(P) -- c: => c:\
+    else
+      P = remove_dir_end(P) -- c:\temp\ => c:\temp
+    end
+  end
+  return lfs.attributes(P, ...)
+end
 
 local function path_exists(P)
-  return attrib(remove_dir_end(P),'mode') ~= nil and P
+  return attrib(P,'mode') ~= nil and P
+end
+
+local function path_isdir(P)
+  return attrib(P,'mode') == 'directory' and P
+end
+
+local function path_mkdir(P)
+  local P = path_fullpath(P)
+  local p = ''
+
+  for str in string.gmatch(ensure_dir_end(P), '.-' .. DIR_SEP) do 
+    p = p .. str
+    if path_exists(p) then
+      if not path_isdir(p) then
+        return nil, 'can not create ' .. p
+      end
+    else
+      local ok, err = lfs.mkdir(remove_dir_end(p))
+      if not ok then return nil, err .. ' ' .. p end
+    end
+  end
+
+  return true
 end
 
 local function path_getctime(P)
@@ -128,7 +198,10 @@ end
 local M = {}
 
 function M.new(log_dir, log_name, max_rows)
-  assert(path_exists(log_dir))
+  log_dir = path_fullpath(log_dir)
+
+  if path_exists(log_dir) then assert(path_isdir(log_dir))
+  else assert(path_mkdir(log_dir)) end
 
   local logger = file_logger:new(log_dir, log_name, max_rows)
 
