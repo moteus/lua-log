@@ -7,6 +7,8 @@ local port = arg[2] or 514
 local InitWriter = [[
   local zthreads = require 'lzmq.threads'
   local ctx = zthreads.get_parent_ctx()
+  if not ctx then ctx = require "lzmq" .init(1) end
+
   return require 'log.writer.list'.new(
      require 'log.writer.console'.new()
     ,require 'log.writer.net.udp'.new('%{udp_cnn_host}', %{udp_cnn_port})
@@ -14,7 +16,7 @@ local InitWriter = [[
   )
 ]]
 
-local writer = require "log.writer.async".new(ctx, 'inproc://async.logger', 
+local writer = require "log.writer.async.zmq".new(ctx, 'inproc://async.logger', 
   InitWriter:gsub('%%{(.-)}', {
     zmq_cnn_host = 'tcp://' .. host .. ':' .. port;
     udp_cnn_host = host;
