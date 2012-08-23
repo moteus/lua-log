@@ -1,0 +1,9 @@
+PROJECT = 'log'
+
+INSTALL_DIR = INSTALL_DIR or J(ENV.LUA_DIR,'libs',PROJECT)
+
+install = target('install', {
+  file.group{odir=J(INSTALL_DIR, 'examples');recurse = true;  src = J('examples', '*.*')};
+  file.group{odir=J(INSTALL_DIR, 'lua'     );recurse = true;  src = J('lua', '*.*'     )};
+  file.group{odir=J(INSTALL_DIR, 'utils'   );recurse = true;  src = J('utils', '*.*'   )};
+})
