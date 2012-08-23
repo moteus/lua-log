@@ -1,5 +1,5 @@
 local ok, console = pcall(require, "log.writer.console.color")
-if not ok then console = require, "log.writer.console" end
+if not ok then console = require "log.writer.console" end
 
 local writer = require "log.writer.list".new(
   -- write to console from main thread 

@@ -4,7 +4,7 @@ local socket   = require"socket"
 local cmsgpack = require"cmsgpack.safe"
 
 local ok, console = pcall(require, "log.writer.console.color")
-if not ok then console = require, "log.writer.console" end
+if not ok then console = require "log.writer.console" end
 
 local writer = console.new()
 

@@ -6,7 +6,7 @@ local ctx = zmq.init(1)
 -- create log thread
 local writer = require "log.writer.async".new(ctx, 'inproc://async.logger', [[
   local ok, console = pcall(require, 'log.writer.console.color')
-  if not ok then console = require, 'log.writer.console' end
+  if not ok then console = require 'log.writer.console' end
   return require'log.writer.list'.new(
     console.new(),
     require 'log.writer.file.by_day'.new('./logs', 'events.log', 5000)
