@@ -5,13 +5,7 @@ local DIR_SEP = package.config:sub(1,1)
 local IS_WINDOWS = DIR_SEP == '\\'
 
 local function remove_dir_end(str)
-  while(str ~= '')do
-    local ch = str:sub(-1)
-    if ch == '\\' or ch == '/' then 
-      str = str:sub(1,-2)
-    else break end
-  end
-  return str
+  return (string.gsub(str, '[\\/]+$', ''))
 end
 
 local function ensure_dir_end(str)

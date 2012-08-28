@@ -1,3 +1,5 @@
+local Log = require"log"
+
 local ok, zmq, zthreads
 ok, zmq = pcall(require, "lzmq")
 if ok then zthreads = require "lzmq.threads"
@@ -17,7 +19,7 @@ local function create(ctx, addr, maker)
     ctx, addr, maker = nil, ctx, addr
   end
 
-  log_ctx = log_ctx or ctx or zassert(zmq.init(1))
+  log_ctx = log_ctx or ctx or zthreads.get_parent_ctx() or zassert(zmq.init(1))
 
   local skt = zassert(log_ctx:socket(zmq.PUSH))
   skt:set_sndtimeo(500)
@@ -35,7 +37,8 @@ local function create(ctx, addr, maker)
   end
 
   zassert(skt:connect(addr))
-  
+
+  Log.add_cleanup(function() skt:close() end)
   return function(msg, lvl, now)
     local m = cmsgpack.pack(msg, lvl, now:fmt("%F %T"))
     skt:send(m)

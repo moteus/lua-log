@@ -1,5 +1,7 @@
 local date = require "date"
 
+local destroy_list = {}
+
 local LOG_LVL = {
   FOTAL   = 1;
   ERROR   = 2;
@@ -44,6 +46,29 @@ function M.new(max_lvl, writer, formatter)
     notice  = function (...) write(LOG_LVL.NOTICE , ...) end;
     debug   = function (...) write(LOG_LVL.DEBUG  , ...) end;
   }
+end
+
+function M.add_cleanup(fn)
+  assert(type(fn)=='function')
+  for k,v in ipairs(destroy_list) do
+    if v == fn then return end
+  end
+  table.insert(destroy_list, 1, fn)
+  return fn
+end
+
+function M.remove_cleanup(fn)
+  for k,v in ipairs(destroy_list) do
+    if v == fn then 
+      table.remove(destroy_list, k)
+      break
+    end
+  end
+end
+
+function M.close()
+  for k,fn in ipairs(destroy_list) do pcall(fn) end
+  destroy_list = {}
 end
 
 return M
