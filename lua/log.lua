@@ -1,4 +1,4 @@
-require "date"
+local date = require "date"
 
 local LOG_LVL = {
   FOTAL   = 1;
@@ -11,18 +11,13 @@ local LOG_LVL = {
 local LOG_LVL_NAMES = {}
 for k,v in pairs(LOG_LVL) do LOG_LVL_NAMES[v] = k end
 
-local function argv2str(...)
-  local argc,argv = select('#', ...), {...}
-  for i = 1, argc do argv[i] = tostring(argv[i]) end
-  return table.concat(argv)
-end
-
-local function default_formatter(now, lvl, ...)
-  return now:fmt("%F %T") .. ' [' .. LOG_LVL_NAMES[lvl] .. '] ' .. argv2str(...)
+local function default_formatter(now, lvl, msg)
+  return now:fmt("%F %T") .. ' [' .. LOG_LVL_NAMES[lvl] .. '] ' .. msg
 end
 
 local M = {}
 M.LVL = LOG_LVL
+M.LVL_NAMES = LOG_LVL_NAMES
 
 function M.new(max_lvl, writer, formatter)
   if max_lvl and type(max_lvl) ~= number then
@@ -42,12 +37,12 @@ function M.new(max_lvl, writer, formatter)
   end;
 
   return {
-    fotal   = function (msg) write(LOG_LVL.FOTAL  , msg) end;
-    error   = function (msg) write(LOG_LVL.ERROR  , msg) end;
-    warning = function (msg) write(LOG_LVL.WARNING, msg) end;
-    info    = function (msg) write(LOG_LVL.INFO   , msg) end;
-    notice  = function (msg) write(LOG_LVL.NOTICE , msg) end;
-    debug   = function (msg) write(LOG_LVL.DEBUG  , msg) end;
+    fotal   = function (...) write(LOG_LVL.FOTAL  , ...) end;
+    error   = function (...) write(LOG_LVL.ERROR  , ...) end;
+    warning = function (...) write(LOG_LVL.WARNING, ...) end;
+    info    = function (...) write(LOG_LVL.INFO   , ...) end;
+    notice  = function (...) write(LOG_LVL.NOTICE , ...) end;
+    debug   = function (...) write(LOG_LVL.DEBUG  , ...) end;
   }
 end
 
