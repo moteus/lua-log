@@ -26,8 +26,10 @@ local function create_socket(host, port, maker)
   assert(skt:settimeout(0.1))
   assert(skt:setpeername(host, port))
 
-  local child_thread = runstring(Worker, host, port, maker)
-  child_thread:start(true)
+  if maker then
+    local child_thread = runstring(Worker, host, port, maker)
+    child_thread:start(true)
+  end
 
   socket.sleep(0.5)
 

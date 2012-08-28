@@ -1,7 +1,7 @@
 local LOG = require"log".new(
   require "log.writer.list".new(
-    require "log.writer.async.proxy.zmq".new('tcp://127.0.0.1:514'),
-    require "log.writer.async.proxy.udp".new('127.0.0.1', 514)
+    require "log.writer.async.zmq".new('tcp://127.0.0.1:514'),
+    require "log.writer.async.udp".new('127.0.0.1', 514)
   )
 )
 local zmq = require "lzmq"

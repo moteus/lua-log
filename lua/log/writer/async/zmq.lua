@@ -20,17 +20,19 @@ local function create(ctx, addr, maker)
   log_ctx = log_ctx or ctx or zassert(zmq.init(1))
 
   local skt = zassert(log_ctx:socket(zmq.PUSH))
-  local skt_sync = zassert(log_ctx:socket(zmq.PAIR))
-
   skt:set_sndtimeo(500)
   skt:set_linger(1000)
-  zassert(skt_sync:bind(addr .. '.sync'))
 
-  local child_thread = zthreads.runstring(log_ctx, Worker, addr, maker)
-  child_thread:start(true)
+  if maker then
+    local skt_sync = zassert(log_ctx:socket(zmq.PAIR))
+    zassert(skt_sync:bind(addr .. '.sync'))
 
-  zassert(skt_sync:recv())
-  skt_sync:close()
+    local child_thread = zthreads.runstring(log_ctx, Worker, addr, maker)
+    child_thread:start(true)
+
+    zassert(skt_sync:recv())
+    skt_sync:close()
+  end
 
   zassert(skt:connect(addr))
   
