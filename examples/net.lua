@@ -10,11 +10,11 @@ local LOG = require"log".new(
   require "log.writer.list".new(
     require "log.writer.console".new()
     ,require "log.writer.net.udp".new(udp_cnn_host, udp_cnn_port)
-    ,require "log.writer.net.zmq".new(zmq_cnn_host, 'app from some host')
+    ,require "log.writer.net.zmq".new(zmq_cnn_host)
   )
 )
 
-require"lzmq".utils.sleep(1) -- zmq need time for connect
+require"socket".sleep(1) -- zmq need time for connect
 
 LOG.fotal("can not allocate memory")
 LOG.error("file not found")

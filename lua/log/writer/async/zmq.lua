@@ -9,7 +9,7 @@ else
 end
 local zassert = zmq.assert or assert
 
-local cmsgpack = require "cmsgpack.safe"
+local log_packer = require "log.writer.async.pack"
 
 local Worker
 local log_ctx
@@ -21,27 +21,43 @@ local function create(ctx, addr, maker)
 
   log_ctx = log_ctx or ctx or zthreads.get_parent_ctx() or zassert(zmq.init(1))
 
-  local skt = zassert(log_ctx:socket(zmq.PUSH))
-  skt:set_sndtimeo(500)
-  skt:set_linger(1000)
-
+  local skt_sync
   if maker then
-    local skt_sync = zassert(log_ctx:socket(zmq.PAIR))
+    skt_sync = zassert(log_ctx:socket(zmq.PAIR))
     zassert(skt_sync:bind(addr .. '.sync'))
 
     local child_thread = zthreads.runstring(log_ctx, Worker, addr, maker)
     child_thread:start(true)
 
-    zassert(skt_sync:recv())
-    skt_sync:close()
   end
 
+  local skt = zassert(log_ctx:socket(zmq.PUSH))
+  if log_ctx.autoclose then log_ctx:autoclose(skt) end
+  skt:set_sndtimeo(500)
+  skt:set_linger(1000)
+
+  if skt_sync then zassert(skt_sync:recv()) skt_sync:close() skt_sync = nil end
   zassert(skt:connect(addr))
 
-  Log.add_cleanup(function() skt:close() end)
+  if skt.on_close  then -- support autoclose
+    if maker then -- should send signal to therad
+      skt:on_close(function()
+        if not skt:closed() then
+          skt:send("") --[[close signal]] 
+        end
+      end)
+    end
+  else
+    if maker then
+      Log.add_cleanup(function() skt:send("") skt:close() end)
+    else
+      Log.add_cleanup(function() skt:close() end)
+    end
+  end
+
+  local pack = log_packer.pack
   return function(msg, lvl, now)
-    local m = cmsgpack.pack(msg, lvl, now:fmt("%F %T"))
-    skt:send(m)
+    skt:send(pack(msg, lvl, now))
   end
 end
 
@@ -77,8 +93,10 @@ else
 end
 
 
-local cmsgpack = require"cmsgpack.safe"
-local date     = require"date"
+local Log = require "log"
+local log_packer = require "log.writer.async.pack"
+local unpack = log_packer.unpack
+
 local address, maker  = ...
 
 local writer = assert(loadstring(maker))()
@@ -87,10 +105,12 @@ local ctx = zthreads.get_parent_ctx()
 
 local skt = zassert(ctx:socket(zmq.PULL))
 zassert(skt:bind(address))
+do
 local skt_sync = zassert(ctx:socket(zmq.PAIR))
 zassert(skt_sync:connect(address .. '.sync'))
 skt_sync:send("")
 skt_sync:close()
+end
 
 while(true)do
   local msg, err = zrecv(skt)
@@ -98,18 +118,16 @@ while(true)do
     if err == ETERM then break end
     io.stderr:write('async_logger: ', err, zstrerror(err))
   else
-    local msg, lvl, now = cmsgpack.unpack(msg)
-    if msg and lvl and now then
-      now = date(now)
-      writer(msg, lvl, now)
-    end
+    if msg == "" then break end --[[close signal]]
+    local msg, lvl, now = unpack(msg)
+    if msg and lvl and now then writer(msg, lvl, now) end
   end
 end
 
 skt:close()
+Log.close()
 ctx:term()
 ]=]
-
 
 local M = {}
 

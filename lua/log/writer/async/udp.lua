@@ -16,7 +16,7 @@ else
   end
 end
 
-local cmsgpack = require "cmsgpack.safe"
+local log_packer = require "log.writer.async.pack"
 local socket   = require "socket"
 
 local Worker
@@ -38,7 +38,7 @@ end
 
 Worker = [=[
 local socket   = require "socket"
-local cmsgpack = require"cmsgpack.safe"
+local log_packer = require "log.writer.async.pack"
 local date     = require"date"
 
 local host, port, maker = ...
@@ -50,7 +50,7 @@ assert(uskt:setsockname(host, port))
 while(true)do
   local msg, err = uskt:receivefrom()
   if msg then 
-    local msg, lvl, now = cmsgpack.unpack(msg)
+    local msg, lvl, now = log_packer.unpack(msg)
     if msg and lvl and now then
       now = date(now)
       writer(msg, lvl, now)
@@ -69,8 +69,7 @@ local M = {}
 function M.new(host, port, maker) 
   local skt = create_socket(host, port, maker)
   return function(msg, lvl, now)
-    local m = cmsgpack.pack(msg, lvl, now:fmt("%F %T"))
-    skt:send(m)
+    skt:send(log_packer.pack(msg, lvl, now))
   end
 end
 

@@ -1,18 +1,21 @@
-local zmq      = require"lzmq"
-local zloop    = require"lzmq.loop"
-local socket   = require"socket"
-local cmsgpack = require"cmsgpack.safe"
-
-local ok, console = pcall(require, "log.writer.console.color")
-if not ok then console = require "log.writer.console" end
-
-local writer = console.new()
+local log_packer = require"log.writer.async.pack"
+local writer = require"log.writer.console.color".new()
 
 local function write(msg)
-  local msg, lvl, now = cmsgpack.unpack(msg)
+  local msg, lvl, now = log_packer.unpack(msg)
   now = date(now)
   writer(msg, lvl, now)
 end
+-----------------------------------------------------------------------
+
+local socket = require"socket"
+local ok, zmq, zpoller = pcall(require, "lzmq")
+if ok then zpoller  = require"lzmq.poller"
+else
+  zmq      = require"zmq"
+  zpoller  = require"zmq.poller"
+end
+local zassert = zmq.assert or assert
 
 local host = arg[1] or '127.0.0.1'
 local port = arg[2] or 514
@@ -21,19 +24,46 @@ local zmq_bind_host = 'tcp://' .. host .. ':' .. port
 local udp_bind_host = host
 local udp_bind_port = port
 
-local loop = zloop.new(2)
+local uskt = assert(socket.udp())
+if uskt.getfd then assert(uskt:setsockname(udp_bind_host, udp_bind_port))
+else 
+  print("UDP do not support!")
+  uskt:close()
+end
 
-local zskt = loop:add_new_bind(zmq.PULL, zmq_bind_host, function(skt) 
-  local msg = skt:recv_all()
+local ctx = zmq.init(1)
+local zskt = ctx:socket(zmq.PULL)
+zassert(zskt:bind(zmq_bind_host))
+local zrecv_all
+if zskt.recv_all then
+  zrecv_all = zskt.recv_all 
+else
+  zrecv_all = function(skt)
+    local t = {}
+    local r, err = skt:recv()
+    if not r then return nil, err end
+    table.insert(t,r)
+    while skt:rcvmore() == 1 do
+      r, err = skt:recv()
+      if not r then return nil, err, t end
+      table.insert(t,r)
+    end 
+    return t
+  end
+end
+
+local loop = zpoller.new(2)
+
+loop:add(zskt, zmq.POLLIN, function()
+  local msg = zrecv_all(zskt)
   write(msg[1])
 end)
 
-local uskt = assert(socket.udp())
-assert(uskt:setsockname(udp_bind_host, udp_bind_port))
-loop:add_socket(uskt:getfd(), function() 
-  local msg = uskt:receivefrom()
-  write( msg  )
-end)
-
+if uskt then
+  loop:add(uskt:getfd(), zmq.POLLIN, function()
+    local msg, ip, port = uskt:receivefrom()
+    write(msg)
+  end)
+end
 
 loop:start()

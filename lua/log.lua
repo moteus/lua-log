@@ -1,6 +1,8 @@
 local date = require "date"
 
 local destroy_list = {}
+local loggers_list = setmetatable({},{__mode = 'k'})
+local emptyfn = function() end
 
 local LOG_LVL = {
   FOTAL   = 1;
@@ -38,7 +40,7 @@ function M.new(max_lvl, writer, formatter)
     end
   end;
 
-  return {
+  local logger = {
     fotal   = function (...) write(LOG_LVL.FOTAL  , ...) end;
     error   = function (...) write(LOG_LVL.ERROR  , ...) end;
     warning = function (...) write(LOG_LVL.WARNING, ...) end;
@@ -46,6 +48,9 @@ function M.new(max_lvl, writer, formatter)
     notice  = function (...) write(LOG_LVL.NOTICE , ...) end;
     debug   = function (...) write(LOG_LVL.DEBUG  , ...) end;
   }
+  loggers_list[logger] = true;
+
+  return logger
 end
 
 function M.add_cleanup(fn)
@@ -68,6 +73,16 @@ end
 
 function M.close()
   for k,fn in ipairs(destroy_list) do pcall(fn) end
+  for logger in pairs(loggers_list) do
+    logger.fotal   = emptyfn;
+    logger.error   = emptyfn;
+    logger.warning = emptyfn;
+    logger.info    = emptyfn;
+    logger.notice  = emptyfn;
+    logger.debug   = emptyfn;
+    logger.closed  = true;
+    loggers_list[logger] =  nil
+  end
   destroy_list = {}
 end
 

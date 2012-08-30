@@ -1,0 +1,1 @@
+return require "log.writer.net.zmq._private".init('PUB', true)
