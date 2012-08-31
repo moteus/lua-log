@@ -39,20 +39,8 @@ local function create(ctx, addr, maker)
   if skt_sync then zassert(skt_sync:recv()) skt_sync:close() skt_sync = nil end
   zassert(skt:connect(addr))
 
-  if skt.on_close  then -- support autoclose
-    if maker then -- should send signal to therad
-      skt:on_close(function()
-        if not skt:closed() then
-          skt:send("") --[[close signal]] 
-        end
-      end)
-    end
-  else
-    if maker then
-      Log.add_cleanup(function() skt:send("") skt:close() end)
-    else
-      Log.add_cleanup(function() skt:close() end)
-    end
+  if not log_ctx.autoclose  then
+    Log.add_cleanup(function() skt:close() end)
   end
 
   local pack = log_packer.pack
@@ -118,7 +106,6 @@ while(true)do
     if err == ETERM then break end
     io.stderr:write('async_logger: ', err, zstrerror(err))
   else
-    if msg == "" then break end --[[close signal]]
     local msg, lvl, now = unpack(msg)
     if msg and lvl and now then writer(msg, lvl, now) end
   end
