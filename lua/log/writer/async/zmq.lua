@@ -11,6 +11,17 @@ local zassert = zmq.assert or assert
 
 local log_packer = require "log.writer.async.pack"
 
+local function rand_str(n)
+  math.randomseed(os.time())
+  local str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  local res = ''
+  for i = 1,n do
+    local n = math.random(1, #str)
+    res = res .. str:sub(n,n)
+  end
+  return res
+end
+
 local Worker
 local log_ctx
 
@@ -24,9 +35,10 @@ local function create(ctx, addr, maker)
   local skt_sync
   if maker then
     skt_sync = zassert(log_ctx:socket(zmq.PAIR))
-    zassert(skt_sync:bind(addr .. '.sync'))
+    local addr_sync = 'inproc://' .. rand_str(15)
+    zassert(skt_sync:bind(addr_sync))
 
-    local child_thread = zthreads.runstring(log_ctx, Worker, addr, maker)
+    local child_thread = zthreads.runstring(log_ctx, Worker, addr_sync, addr, maker)
     child_thread:start(true)
 
   end
@@ -85,7 +97,7 @@ local Log = require "log"
 local log_packer = require "log.writer.async.pack"
 local unpack = log_packer.unpack
 
-local address, maker  = ...
+local addr_sync, address, maker  = ...
 
 local writer = assert(loadstring(maker))()
 
@@ -95,7 +107,7 @@ local skt = zassert(ctx:socket(zmq.PULL))
 zassert(skt:bind(address))
 do
 local skt_sync = zassert(ctx:socket(zmq.PAIR))
-zassert(skt_sync:connect(address .. '.sync'))
+zassert(skt_sync:connect(addr_sync))
 skt_sync:send("")
 skt_sync:close()
 end
