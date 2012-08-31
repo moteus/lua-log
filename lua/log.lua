@@ -8,8 +8,8 @@ local LOG_LVL = {
   FOTAL   = 1;
   ERROR   = 2;
   WARNING = 3;
-  INFO    = 4;
-  NOTICE  = 5;
+  NOTICE  = 4;
+  INFO    = 5;
   DEBUG   = 6;
 }
 local LOG_LVL_NAMES = {}
@@ -24,7 +24,7 @@ M.LVL = LOG_LVL
 M.LVL_NAMES = LOG_LVL_NAMES
 
 function M.new(max_lvl, writer, formatter)
-  if max_lvl and type(max_lvl) ~= number then
+  if max_lvl and type(max_lvl) ~= 'number' then
     max_lvl, writer, formatter = nil, max_lvl, writer
   end
 
