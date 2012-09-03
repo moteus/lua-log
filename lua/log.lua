@@ -12,6 +12,8 @@ local LOG_LVL = {
   INFO    = 5;
   DEBUG   = 6;
 }
+local writer_names = {'fotal','error','warning','notice','info','debug'}
+
 local LOG_LVL_NAMES = {}
 for k,v in pairs(LOG_LVL) do LOG_LVL_NAMES[v] = k end
 local LOG_LVL_COUNT = #LOG_LVL_NAMES
@@ -43,7 +45,6 @@ function M.new(max_lvl, writer, formatter)
   function logger.set_lvl(lvl)
     if (lvl ~= 0) and (not LOG_LVL_NAMES[lvl]) then return nil, 'unknown log level' end
     max_lvl = lvl 
-    local writer_names = {'fotal','error','warning','info','notice','debug'}
     for i = 1, max_lvl do logger[ writer_names[i] ] = function(...) write(i, ...) end end
     for i = max_lvl+1, LOG_LVL_COUNT  do logger[ writer_names[i] ] = emptyfn end
     return true
