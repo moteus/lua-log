@@ -14,6 +14,7 @@ local LOG_LVL = {
 }
 local LOG_LVL_NAMES = {}
 for k,v in pairs(LOG_LVL) do LOG_LVL_NAMES[v] = k end
+local LOG_LVL_COUNT = #LOG_LVL_NAMES
 
 local function default_formatter(now, lvl, msg)
   return now:fmt("%F %T") .. ' [' .. LOG_LVL_NAMES[lvl] .. '] ' .. msg
@@ -28,26 +29,30 @@ function M.new(max_lvl, writer, formatter)
     max_lvl, writer, formatter = nil, max_lvl, writer
   end
 
-  max_lvl = max_lvl or LOG_LVL.DEBUG
-  assert(LOG_LVL_NAMES[max_lvl])
-  formatter = formatter or default_formatter
+  max_lvl = max_lvl or LOG_LVL.INFO
+  assert((max_lvl == 0) or (LOG_LVL_NAMES[max_lvl]))
 
+  formatter = formatter or default_formatter
   local write = function (lvl, ... )
-    assert(LOG_LVL_NAMES[lvl])
-    if lvl <= max_lvl then
-      local now = date()
-      writer( formatter(now, lvl, ...), lvl, now )
-    end
+    local now = date()
+    writer( formatter(now, lvl, ...), lvl, now )
   end;
 
-  local logger = {
-    fotal   = function (...) write(LOG_LVL.FOTAL  , ...) end;
-    error   = function (...) write(LOG_LVL.ERROR  , ...) end;
-    warning = function (...) write(LOG_LVL.WARNING, ...) end;
-    info    = function (...) write(LOG_LVL.INFO   , ...) end;
-    notice  = function (...) write(LOG_LVL.NOTICE , ...) end;
-    debug   = function (...) write(LOG_LVL.DEBUG  , ...) end;
-  }
+  local logger = {}
+
+  function logger.set_lvl(lvl)
+    if (lvl ~= 0) and (not LOG_LVL_NAMES[lvl]) then return nil, 'unknown log level' end
+    max_lvl = lvl 
+    local writer_names = {'fotal','error','warning','info','notice','debug'}
+    for i = 1, max_lvl do logger[ writer_names[i] ] = function(...) write(i, ...) end end
+    for i = max_lvl+1, LOG_LVL_COUNT  do logger[ writer_names[i] ] = emptyfn end
+    return true
+  end
+
+  function logger.lvl() return max_lvl end
+
+  assert(logger.set_lvl(max_lvl))
+
   loggers_list[logger] = true;
 
   return logger
