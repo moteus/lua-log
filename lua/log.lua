@@ -18,8 +18,14 @@ local LOG_LVL_NAMES = {}
 for k,v in pairs(LOG_LVL) do LOG_LVL_NAMES[v] = k end
 local LOG_LVL_COUNT = #LOG_LVL_NAMES
 
+local sformat = string.format
+local function date_fmt(now)
+  local Y, M, D = now:getdate()
+  return sformat("%.4d-%.2d-%.2d %.2d:%.2d:%.2d", Y, M, D, now:gettime())
+end
+
 local function default_formatter(now, lvl, msg)
-  return now:fmt("%F %T") .. ' [' .. LOG_LVL_NAMES[lvl] .. '] ' .. msg
+  return date_fmt(now) .. ' [' .. LOG_LVL_NAMES[lvl] .. '] ' .. msg
 end
 
 local M = {}

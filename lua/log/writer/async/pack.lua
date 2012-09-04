@@ -11,7 +11,7 @@ local M = {}
 function M.pack(msg, lvl, now)
   local Y, M, D = now:getdate()
   local h, m, s = now:gettime()
-  local now_s = sformat("%.4d-%.2d-%2d %.2d:%.2d:%2d", Y, M, D, h, m, s)
+  local now_s = sformat("%.4d-%.2d-%.2d %.2d:%.2d:%.2d", Y, M, D, h, m, s)
 
   return schar(lvl) .. now_s .. msg
 end
