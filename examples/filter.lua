@@ -1,6 +1,6 @@
 local LOG = require"log".new(
   require "log.writer.list".new(
-    require "log.writer.filter".new(3,
+    require "log.writer.filter".new('warning',
       require "log.writer.console.color".new()
     ),
     require "log.writer.file.by_day".new('./logs', 'events.log', 5000)

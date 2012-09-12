@@ -1,5 +1,4 @@
-local LogLib = require"log"
-local LOG = LogLib.new(LogLib.LVL.DEBUG,
+local LOG = require"log".new('DEBUG',
   require "log.writer.console.color".new()
 )
 

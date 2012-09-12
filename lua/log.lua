@@ -18,6 +18,19 @@ local LOG_LVL_NAMES = {}
 for k,v in pairs(LOG_LVL) do LOG_LVL_NAMES[v] = k end
 local LOG_LVL_COUNT = #LOG_LVL_NAMES
 
+local function lvl2number(lvl)
+  if type(lvl) == 'number' then return lvl end
+  if type(lvl) == 'string' then
+    lvl = lvl:upper()
+    local n
+    if lvl == 'NONE' then n = 0 else n = LOG_LVL[ lvl ] end
+    if not n then return nil, "unknown log level: '" .. lvl .. "'" end
+    return n
+  end
+
+  return nil, 'unsupported log leve type: ' .. type(lvl)
+end
+
 local sformat = string.format
 local function date_fmt(now)
   local Y, M, D = now:getdate()
@@ -32,13 +45,14 @@ local M = {}
 M.LVL = LOG_LVL
 M.LVL_NAMES = LOG_LVL_NAMES
 
+M.lvl2number = lvl2number
+
 function M.new(max_lvl, writer, formatter)
-  if max_lvl and type(max_lvl) ~= 'number' then
+  if max_lvl and type(max_lvl) ~= 'number' and type(max_lvl) ~= 'string' then
     max_lvl, writer, formatter = nil, max_lvl, writer
   end
 
-  max_lvl = max_lvl or LOG_LVL.INFO
-  assert((max_lvl == 0) or (LOG_LVL_NAMES[max_lvl]))
+  max_lvl = assert(lvl2number ( max_lvl or LOG_LVL.INFO ) )
 
   formatter = formatter or default_formatter
   local write = function (lvl, ... )
