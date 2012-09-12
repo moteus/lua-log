@@ -13,7 +13,11 @@ function M.new(from, to, server, subject)
   return function(msg, lvl, now)
     sendmail(from, to, server, {
       subject = now:fmt("%F %T") .. ' [' .. Log.LVL_NAMES[lvl] .. '] ' .. subject;
-      text    = msg;
+      file    = {
+        name = 'message.txt';
+        data = msg;
+      };
+      text = msg;
     })
   end
 end
