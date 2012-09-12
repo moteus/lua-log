@@ -68,8 +68,9 @@ function M.new(max_lvl, writer, formatter)
   local logger = {}
 
   function logger.set_lvl(lvl)
-    if (lvl ~= 0) and (not LOG_LVL_NAMES[lvl]) then return nil, 'unknown log level' end
-    max_lvl = lvl 
+    local err lvl, err = lvl2number(lvl)
+    if not lvl then return nil, err end 
+    max_lvl = lvl
     for i = 1, max_lvl do logger[ writer_names[i]           ] = function(...) write(i, ...) end end
     for i = 1, max_lvl do logger[ writer_names[i] .. '_dump'] = function(...) dump(i, ...)  end end
     for i = max_lvl+1, LOG_LVL_COUNT  do logger[ writer_names[i]           ] = emptyfn end
