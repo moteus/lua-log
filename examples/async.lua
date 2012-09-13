@@ -10,7 +10,7 @@ local writer = require "log.writer.list".new(
 
 local LOG = require"log".new(nil, writer)
 
-LOG.fotal("can not allocate memory")
+LOG.fatal("can not allocate memory")
 LOG.error("file not found")
 LOG.warning("cache server is not started")
 LOG.info("new message is received")

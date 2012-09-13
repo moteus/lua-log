@@ -20,7 +20,7 @@ require "socket".sleep(0.5) -- net.zmq need time to connect
 
 local LOG = require"log".new(nil, writer)
 
-LOG.fotal("can not allocate memory")
+LOG.fatal("can not allocate memory")
 LOG.error("file not found")
 LOG.warning("cache server is not started")
 LOG.info("new message is received")

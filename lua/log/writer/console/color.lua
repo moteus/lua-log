@@ -64,12 +64,15 @@ if not ok then
 end
 
 local colors = {
-  [Log.LVL.FOTAL   ] = make_attr(COLORS.BLACK,        COLORS.LIGHTRED);
-  [Log.LVL.ERROR   ] = make_attr(COLORS.LIGHTRED,     COLORS.BLACK);
-  [Log.LVL.WARNING ] = make_attr(COLORS.LIGHTMAGENTA, COLORS.BLACK);
-  [Log.LVL.INFO    ] = make_attr(COLORS.WHITE,        COLORS.BLACK);
-  [Log.LVL.NOTICE  ] = make_attr(COLORS.LIGHTCYAN,    COLORS.BLACK);
-  [Log.LVL.DEBUG   ] = make_attr(COLORS.YELLOW,       COLORS.BLACK);
+  [Log.LVL.EMERGENCY ] = make_attr(COLORS.WHITE,        COLORS.LIGHTRED); 
+  [Log.LVL.ALERT     ] = make_attr(COLORS.BLUE,         COLORS.LIGHTRED); 
+  [Log.LVL.FATAL     ] = make_attr(COLORS.BLACK,        COLORS.LIGHTRED);
+  [Log.LVL.ERROR     ] = make_attr(COLORS.LIGHTRED,     COLORS.BLACK);
+  [Log.LVL.WARNING   ] = make_attr(COLORS.LIGHTMAGENTA, COLORS.BLACK);
+  [Log.LVL.NOTICE    ] = make_attr(COLORS.LIGHTCYAN,    COLORS.BLACK);
+  [Log.LVL.INFO      ] = make_attr(COLORS.WHITE,        COLORS.BLACK);
+  [Log.LVL.DEBUG     ] = make_attr(COLORS.YELLOW,       COLORS.BLACK);
+  [Log.LVL.TRACE     ] = make_attr(COLORS.LIGHTGREEN,   COLORS.BLACK);
 }
 
 local function console_writer(msg, lvl)

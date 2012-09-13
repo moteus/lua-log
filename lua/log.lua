@@ -5,17 +5,24 @@ local loggers_list = setmetatable({},{__mode = 'k'})
 local emptyfn = function() end
 
 local LOG_LVL = {
-  FOTAL   = 1;
-  ERROR   = 2;
-  WARNING = 3;
-  NOTICE  = 4;
-  INFO    = 5;
-  DEBUG   = 6;
+  EMERGENCY = 1;
+  ALERT     = 2;
+  FATAL     = 3;
+  ERROR     = 4;
+  WARNING   = 5;
+  NOTICE    = 6;
+  INFO      = 7;
+  DEBUG     = 8;
+  TRACE     = 9;
 }
-local writer_names = {'fotal','error','warning','notice','info','debug'}
 
+local writer_names = {}
 local LOG_LVL_NAMES = {}
-for k,v in pairs(LOG_LVL) do LOG_LVL_NAMES[v] = k end
+for k,v in pairs(LOG_LVL) do
+  LOG_LVL_NAMES[v] = k 
+  writer_names[v]  = k:lower()
+end
+
 local LOG_LVL_COUNT = #LOG_LVL_NAMES
 
 local function lvl2number(lvl)

@@ -26,7 +26,7 @@ local Thread = [[
     require "log.writer.async.zmq".new('inproc://async.logger')
   )
 
-  LOG.fotal("(Thread) can not allocate memory")
+  LOG.fatal("(Thread) can not allocate memory")
   LOG.error("(Thread) file not found")
   LOG.warning("(Thread) cache server is not started")
   LOG.info("(Thread) new message is received")
@@ -36,7 +36,7 @@ local Thread = [[
 local child_thread = zthreads.runstring(ctx, Thread)
 child_thread:start()
 
-LOG.fotal("can not allocate memory")
+LOG.fatal("can not allocate memory")
 LOG.error("file not found")
 LOG.warning("cache server is not started")
 LOG.info("new message is received")
