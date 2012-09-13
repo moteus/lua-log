@@ -5,7 +5,7 @@ local loggers_list = setmetatable({},{__mode = 'k'})
 local emptyfn = function() end
 
 local LOG_LVL = {
-  EMERGENCY = 1;
+  EMERG     = 1;
   ALERT     = 2;
   FATAL     = 3;
   ERROR     = 4;

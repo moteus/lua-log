@@ -64,7 +64,7 @@ if not ok then
 end
 
 local colors = {
-  [Log.LVL.EMERGENCY ] = make_attr(COLORS.WHITE,        COLORS.LIGHTRED); 
+  [Log.LVL.EMERG     ] = make_attr(COLORS.WHITE,        COLORS.LIGHTRED); 
   [Log.LVL.ALERT     ] = make_attr(COLORS.BLUE,         COLORS.LIGHTRED); 
   [Log.LVL.FATAL     ] = make_attr(COLORS.BLACK,        COLORS.LIGHTRED);
   [Log.LVL.ERROR     ] = make_attr(COLORS.LIGHTRED,     COLORS.BLACK);
