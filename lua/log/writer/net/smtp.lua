@@ -10,7 +10,8 @@ function M.new(from, to, server, subject)
 
   subject = subject or ''
 
-  return function(msg, lvl, now)
+  return function(fmt, msg, lvl, now)
+    msg = fmt(msg, lvl, now)
     sendmail(from, to, server, {
       subject = now:fmt("%F %T") .. ' [' .. Log.LVL_NAMES[lvl] .. '] ' .. subject;
       file    = {
