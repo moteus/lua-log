@@ -45,7 +45,7 @@ local function init(stype, is_srv)
 
   function M.new(ctx, addr, timeout) 
     local skt = create_socket(ctx, addr, timeout)
-    return function(msg) skt:send(msg) end
+    return function(fmt, ...) skt:send((fmt(...))) end
   end
 
   return M

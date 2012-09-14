@@ -199,8 +199,8 @@ function M.new(log_dir, log_name, max_rows)
 
   local logger = file_logger:new(log_dir, log_name, max_rows)
 
-  return function(msg, lvl, now)
-    logger:write(now, msg)
+  return function(fmt, msg, lvl, now)
+    logger:write(now, (fmt(msg, lvl, now)))
   end
 end
 

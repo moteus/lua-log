@@ -11,7 +11,7 @@ local M = {}
 
 function M.new(host, port, timeout) 
   local skt = create_socket(host, port, timeout)
-  return function(msg) skt:send(msg) end
+  return function(fmt, ...) skt:send((fmt( ... ))) end
 end
 
 return M

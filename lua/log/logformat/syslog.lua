@@ -109,12 +109,12 @@ local M = {}
 
 function M.new(facility, host_name, app_name, procid, msgid)
   if not facility then facility = FACILITY.USER
-  else facility = assert(FACILITY[facility:upper()], 'unknown facility: ' .. facility) end
+  else facility = FACILITY[facility:upper()] end
   host_name = host_name or '-'
   app_name  = app_name  or '-'
   procid    = procid    or '-'
   msgid     = msgid     or '-'
-  return function (now, lvl, msg)
+  return function (msg, lvl, now)
     local slvl = assert(LVL2SYSLOG[lvl])
     return 
     -- HEADER

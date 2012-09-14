@@ -1,10 +1,12 @@
-local log_packer = require"log.writer.async.pack"
-local writer = require"log.writer.console.color".new()
+local log_packer = require"log.logformat.proxy.pack"
+local writer = require"log.writer.format".new(
+  require"log.logformat.default".new(),
+  require"log.writer.console.color".new()
+)
 
 local function write(msg)
   local msg, lvl, now = log_packer.unpack(msg)
-  now = date(now)
-  writer(msg, lvl, now)
+  if msg and lvl and now then writer(nil, msg, lvl, now) end
 end
 -----------------------------------------------------------------------
 

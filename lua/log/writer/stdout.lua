@@ -1,7 +1,7 @@
 local M = {}
 
-function M.new() 
-  return function (msg) io.stdout:write(msg,'\n') end
+function M.new()
+  return function (fmt,...) io.stdout:write(fmt(...),'\n') end
 end
 
 return M

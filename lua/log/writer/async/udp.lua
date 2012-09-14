@@ -16,15 +16,15 @@ else
   end
 end
 
-local log_packer = require "log.writer.async.pack"
 local socket   = require "socket"
 
 local Worker
 
-local function create_socket(host, port, maker)
-  local skt = assert(socket.udp())
-  assert(skt:settimeout(0.1))
-  assert(skt:setpeername(host, port))
+local function create_writer(host, port, maker)
+  local writer = require "log.writer.format".new(
+    require "log.logformat.proxy".new(),
+    require "log.writer.net.udp".new(host, port)
+  )
 
   if maker then
     local child_thread = runstring(Worker, host, port, maker)
@@ -33,13 +33,14 @@ local function create_socket(host, port, maker)
 
   socket.sleep(0.5)
 
-  return skt
+  return writer
 end
 
 Worker = [=[
 local socket   = require "socket"
-local log_packer = require "log.writer.async.pack"
-local date     = require"date"
+local log_packer = require "log.logformat.proxy.pack"
+local logformat  = require "log.logformat.default".new()
+local unpack = log_packer.unpack
 
 local host, port, maker = ...
 
@@ -50,11 +51,8 @@ assert(uskt:setsockname(host, port))
 while(true)do
   local msg, err = uskt:receivefrom()
   if msg then 
-    local msg, lvl, now = log_packer.unpack(msg)
-    if msg and lvl and now then
-      now = date(now)
-      writer(msg, lvl, now)
-    end
+    local msg, lvl, now = unpack(msg)
+    if msg and lvl and now then writer(logformat, msg, lvl, now) end
   else
     if err ~= 'timeout' then
       io.stderror:write('async_logger: ', err)
@@ -63,15 +61,8 @@ while(true)do
 end
 ]=]
 
-
 local M = {}
 
-function M.new(host, port, maker) 
-  local skt = create_socket(host, port, maker)
-  return function(msg, lvl, now)
-    skt:send(log_packer.pack(msg, lvl, now))
-  end
-end
+M.new = create_writer
 
 return M
-

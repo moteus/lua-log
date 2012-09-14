@@ -75,8 +75,8 @@ local colors = {
   [Log.LVL.TRACE     ] = make_attr(COLORS.LIGHTGREEN,   COLORS.BLACK);
 }
 
-local function console_writer(msg, lvl)
-  color_writeln(colors[lvl], msg)
+local function console_writer(fmt, msg, lvl, now)
+  color_writeln(colors[lvl], fmt(msg, lvl, now))
 end
 
 local M = {}

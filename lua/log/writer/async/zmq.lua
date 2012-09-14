@@ -9,8 +9,6 @@ else
 end
 local zassert = zmq.assert or assert
 
-local log_packer = require "log.writer.async.pack"
-
 local function rand_str(n)
   math.randomseed(os.time())
   local str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -25,7 +23,7 @@ end
 local Worker
 local log_ctx
 
-local function create(ctx, addr, maker)
+local function create_writer(ctx, addr, maker)
   if ctx and type(ctx) ~= 'userdata' then
     ctx, addr, maker = nil, ctx, addr
   end
@@ -40,25 +38,15 @@ local function create(ctx, addr, maker)
 
     local child_thread = zthreads.runstring(log_ctx, Worker, addr_sync, addr, maker)
     child_thread:start(true)
-
+    zassert(skt_sync:recv())
+    skt_sync:close()
+    skt_sync = nil
   end
 
-  local skt = zassert(log_ctx:socket(zmq.PUSH))
-  if log_ctx.autoclose then log_ctx:autoclose(skt) end
-  skt:set_sndtimeo(500)
-  skt:set_linger(1000)
-
-  if skt_sync then zassert(skt_sync:recv()) skt_sync:close() skt_sync = nil end
-  zassert(skt:connect(addr))
-
-  if not log_ctx.autoclose  then
-    Log.add_cleanup(function() skt:close() end)
-  end
-
-  local pack = log_packer.pack
-  return function(msg, lvl, now)
-    skt:send(pack(msg, lvl, now))
-  end
+  return require "log.writer.format".new(
+    require "log.logformat.proxy".new(),
+    require "log.writer.net.zmq.push".new(log_ctx, addr)
+  )
 end
 
 Worker = [=[
@@ -94,7 +82,9 @@ end
 
 
 local Log = require "log"
-local log_packer = require "log.writer.async.pack"
+local log_packer = require "log.logformat.proxy.pack"
+local logformat  = require "log.logformat.default".new()
+
 local unpack = log_packer.unpack
 
 local addr_sync, address, maker  = ...
@@ -119,7 +109,7 @@ while(true)do
     io.stderr:write('async_logger: ', err, zstrerror(err))
   else
     local msg, lvl, now = unpack(msg)
-    if msg and lvl and now then writer(msg, lvl, now) end
+    if msg and lvl and now then writer(logformat, msg, lvl, now) end
   end
 end
 
@@ -130,6 +120,6 @@ ctx:term()
 
 local M = {}
 
-M.new = create
+M.new = create_writer
 
 return M

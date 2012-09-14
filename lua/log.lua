@@ -38,38 +38,32 @@ local function lvl2number(lvl)
   return nil, 'unsupported log leve type: ' .. type(lvl)
 end
 
-local sformat = string.format
-local function date_fmt(now)
-  local Y, M, D = now:getdate()
-  return sformat("%.4d-%.2d-%.2d %.2d:%.2d:%.2d", Y, M, D, now:gettime())
-end
-
-local function default_formatter(now, lvl, msg)
-  return date_fmt(now) .. ' [' .. LOG_LVL_NAMES[lvl] .. '] ' .. msg
-end
-
 local M = {}
 M.LVL = LOG_LVL
 M.LVL_NAMES = LOG_LVL_NAMES
 
 M.lvl2number = lvl2number
 
-function M.new(max_lvl, writer, formatter)
+function M.new(max_lvl, writer, formatter, logformat)
   if max_lvl and type(max_lvl) ~= 'number' and type(max_lvl) ~= 'string' then
-    max_lvl, writer, formatter = nil, max_lvl, writer
+    max_lvl, writer, formatter, logformat = nil, max_lvl, writer, formatter
   end
 
   max_lvl = assert(lvl2number ( max_lvl or LOG_LVL.INFO ) )
 
-  formatter = formatter or default_formatter
+  formatter = formatter or function(msg) return msg end
+  if not logformat then
+    logformat = require"log.logformat.default".new()
+  end
+
   local write = function (lvl, ... )
     local now = date()
-    writer( formatter(now, lvl, ...), lvl, now )
+    writer( logformat, formatter(...), lvl, now )
   end;
 
   local dump  = function(lvl, fn, ...)
     local now = date()
-    writer( date_fmt(now) .. ' [' .. LOG_LVL_NAMES[lvl] .. '] ' .. (fn(...) or ''), lvl, now )
+    writer( logformat, (fn(...) or ''), lvl, now )
   end
 
   local logger = {}

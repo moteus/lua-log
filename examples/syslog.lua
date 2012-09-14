@@ -1,21 +1,26 @@
 local LogLib = require"log"
+local Format = require "log.writer.format"
+local SysLog = require "log.logformat.syslog"
 
 local writer = require "log.writer.list".new(
-  require "log.writer.net.udp".new('127.0.0.1', 514),
-  require "log.writer.console".new()
+  Format.new( -- explicit set logformat to console
+    require "log.logformat.default".new(), 
+    require "log.writer.stdout".new()
+  ),
+  require "log.writer.net.udp".new('127.0.0.1', 514)
 )
 
 local LOG_FMT = LogLib.new('trace', writer,
-  require "log.formatter.syslog.format".new('kern')
+  require "log.formatter.format".new(),
+  SysLog.new('kern')
 )
 
 local LOG_CON = LogLib.new('trace', writer,
-  require "log.formatter.syslog.concat".new(' ', 'user')
+  require "log.formatter.concat".new(),
+  SysLog.new('USER')
 )
 
-local LOG     = LogLib.new('trace', writer,
-  require "log.formatter.syslog".new('mail')
-)
+local LOG     = LogLib.new('trace', writer, nil, SysLog.new('USER'))
 
 LOG.emerg       ('!! EMERG   !!')
 LOG_FMT.alert   ('!! %-7s !!', 'ALERT'   )
