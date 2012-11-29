@@ -1,6 +1,12 @@
 PROJECT = 'log'
 
-INSTALL_DIR = INSTALL_DIR or J(ENV.LUA_DIR,'libs',PROJECT)
+if LUA_VER == '5.2' then
+  LUA_DIR  = ENV.LUA_DIR_5_2 or ENV.LUA_DIR
+else
+  LUA_DIR  = ENV.LUA_DIR
+end
+
+INSTALL_DIR = INSTALL_DIR or J(LUA_DIR,'libs',PROJECT)
 
 install = target('install', {
   file.group{odir=J(INSTALL_DIR, 'examples');recurse = true;  src = J('examples', '*.*')};

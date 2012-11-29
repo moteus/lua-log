@@ -114,16 +114,19 @@ function M.new(facility, host_name, app_name, procid, msgid)
   app_name  = app_name  or '-'
   procid    = procid    or '-'
   msgid     = msgid     or '-'
+
+  -- HOSTNAME APP-NAME PROCID MSGID
+  local header =host_name .. ' ' .. app_name .. ' ' .. procid .. ' ' .. msgid 
+
   return function (msg, lvl, now)
     local slvl = assert(LVL2SYSLOG[lvl])
     return 
     -- HEADER
       -- PRI VERSION TIMESTAMP
       '<' .. slvl + facility .. '> 1 ' .. Date2SysLog(now) .. ' ' ..
-      -- HOSTNAME APP-NAME PROCID MSGID
-      host_name .. ' ' .. app_name .. ' ' .. procid .. ' ' .. msgid ..
-    -- STRUCTURED-DATA MSG
-    ' - ' ..  msg
+      -- HEADER STRUCTURED-DATA MSG
+      header .. ' - ' ..  msg
+    
   end
 end
 
