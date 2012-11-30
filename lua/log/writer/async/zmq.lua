@@ -89,6 +89,7 @@ local unpack = log_packer.unpack
 
 local addr_sync, address, maker  = ...
 
+local loadstring = loadstring or load
 local writer = assert(loadstring(maker))()
 
 local ctx = zthreads.get_parent_ctx()

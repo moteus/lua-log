@@ -6,6 +6,7 @@ else
   llthreads = require "llthreads"
   runstring = function(code, ...)
     code = [[
+    local loadstring = loadstring or load
     local lua_init = os.getenv("lua_init")
     if lua_init and #lua_init > 0 then
       if lua_init:sub(1,1) == '@' then dofile(lua_init:sub(2))
@@ -44,6 +45,7 @@ local unpack = log_packer.unpack
 
 local host, port, maker = ...
 
+local loadstring = loadstring or load
 local writer = assert(loadstring(maker))()
 
 local uskt = assert(socket.udp())
