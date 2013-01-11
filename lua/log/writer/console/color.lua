@@ -67,9 +67,12 @@ end
 
 if not COLORS then -- ansicolors
   local IS_WINDOWS = (package.config:sub(1,1) == '\\')
+  if IS_WINDOWS and os.getenv("ANSICON") then
+    IS_WINDOWS = nil
+  end
   local ok, c
-  if not IS_WINDOWS then ok, c = pcall(require, "ansicolors") end
-  if ok then
+  if not IS_WINDOWS  then ok, c = pcall(require, "ansicolors") end
+  if ok and (type(c) == 'table') then
     COLORS = {
       BLACK        = 1;
       BLUE         = 2;
@@ -129,6 +132,64 @@ if not COLORS then -- ansicolors
 
     make_attr = function (F, B) return fore[F] .. back[B] end
     color_writeln = function (attr, text) io.write(attr, text, reset, '\n') end
+  end
+  if ok and (type(c) == 'function') then
+    COLORS = {
+      BLACK        = 1;
+      BLUE         = 2;
+      GREEN        = 3;
+      CYAN         = 4;
+      RED          = 5;
+      MAGENTA      = 6;
+      BROWN        = 7;
+      LIGHTGRAY    = 8;
+      DARKGRAY     = 9;
+      LIGHTBLUE    = 10;
+      LIGHTGREEN   = 11;
+      LIGHTCYAN    = 12;
+      LIGHTRED     = 13;
+      LIGHTMAGENTA = 14;
+      YELLOW       = 15;
+      WHITE        = 16;
+    }
+    local fore = {
+      [ COLORS.BLACK        ] = "%{black}";
+      [ COLORS.BLUE         ] = "%{blue}"   ;
+      [ COLORS.GREEN        ] = "%{green}"  ;
+      [ COLORS.CYAN         ] = "%{cyan}"   ;
+      [ COLORS.RED          ] = "%{red}"    ;
+      [ COLORS.MAGENTA      ] = "%{magenta}";
+      [ COLORS.BROWN        ] = "%{yellow}" ;
+      [ COLORS.LIGHTGRAY    ] = "%{white}"  ;
+      [ COLORS.DARKGRAY     ] = "%{black}"   .. "%{bright}";
+      [ COLORS.LIGHTBLUE    ] = "%{blue}"    .. "%{bright}";
+      [ COLORS.LIGHTGREEN   ] = "%{green}"   .. "%{bright}";
+      [ COLORS.LIGHTCYAN    ] = "%{cyan}"    .. "%{bright}";
+      [ COLORS.LIGHTRED     ] = "%{red}"     .. "%{bright}";
+      [ COLORS.LIGHTMAGENTA ] = "%{magenta}" .. "%{bright}";
+      [ COLORS.YELLOW       ] = "%{yellow}"  .. "%{bright}";
+      [ COLORS.WHITE        ] = "%{white}"   .. "%{bright}";
+    }
+    local back = {
+      [ COLORS.BLACK        ] = "%{blackbg}";
+      [ COLORS.BLUE         ] = "%{bluebg}"   ;
+      [ COLORS.GREEN        ] = "%{greenbg}"  ;
+      [ COLORS.CYAN         ] = "%{cyanbg}"   ;
+      [ COLORS.RED          ] = "%{redbg}"    ;
+      [ COLORS.MAGENTA      ] = "%{magentabg}";
+      [ COLORS.BROWN        ] = "%{yellowbg}" ;
+      [ COLORS.LIGHTGRAY    ] = "%{whitebg}"  ;
+      [ COLORS.DARKGRAY     ] = "%{blackbg}"   .. "%{bright}";
+      [ COLORS.LIGHTBLUE    ] = "%{bluebg}"    .. "%{bright}";
+      [ COLORS.LIGHTGREEN   ] = "%{greenbg}"   .. "%{bright}";
+      [ COLORS.LIGHTCYAN    ] = "%{cyanbg}"    .. "%{bright}";
+      [ COLORS.LIGHTRED     ] = "%{redbg}"     .. "%{bright}";
+      [ COLORS.LIGHTMAGENTA ] = "%{magentabg}" .. "%{bright}";
+      [ COLORS.YELLOW       ] = "%{yellowbg}"  .. "%{bright}";
+      [ COLORS.WHITE        ] = "%{whitebg}"   .. "%{bright}";
+    }
+    make_attr = function (F, B) return fore[F] .. back[B] end
+    color_writeln = function (attr, text) io.write(c(attr .. text), '\n') end
   end
 end
 
