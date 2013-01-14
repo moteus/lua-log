@@ -1,4 +1,5 @@
-local Log = require "log"
+local string = require "string"
+local Log    = require "log"
 
 local sformat = string.format
 local function date_fmt(now)

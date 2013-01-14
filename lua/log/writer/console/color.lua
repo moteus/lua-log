@@ -1,4 +1,6 @@
-local Log = require"log"
+local io  = require "io"
+local os  = require "os"
+local Log = require "log"
 
 local make_attr, color_writeln, COLORS
 

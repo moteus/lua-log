@@ -1,3 +1,5 @@
+local table = require "table"
+
 local M = {}
 
 function M.new(sep)

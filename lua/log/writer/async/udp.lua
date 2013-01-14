@@ -38,7 +38,8 @@ local function create_writer(host, port, maker)
 end
 
 Worker = [=[
-local socket   = require "socket"
+local io         = require "io"
+local socket     = require "socket"
 local log_packer = require "log.logformat.proxy.pack"
 local logformat  = require "log.logformat.default".new()
 local unpack = log_packer.unpack

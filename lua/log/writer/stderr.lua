@@ -1,3 +1,5 @@
+local io = require "io"
+
 local M = {}
 
 function M.new() 

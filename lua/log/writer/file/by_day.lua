@@ -1,5 +1,8 @@
-local date = require "date"
-local lfs  = require "lfs"
+local io     = require "io"
+local os     = require "os"
+local string = require "string"
+local date   = require "date"
+local lfs    = require "lfs"
 
 local DIR_SEP = package.config:sub(1,1)
 local IS_WINDOWS = DIR_SEP == '\\'

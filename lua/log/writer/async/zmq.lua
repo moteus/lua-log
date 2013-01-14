@@ -1,4 +1,6 @@
-local Log = require"log"
+local os   = require "os"
+local math = require "math"
+local Log  = require "log"
 
 local ok, zmq, zthreads
 ok, zmq = pcall(require, "lzmq")
@@ -80,7 +82,7 @@ else
   end
 end
 
-
+local io  = require "io"
 local Log = require "log"
 local log_packer = require "log.logformat.proxy.pack"
 local logformat  = require "log.logformat.default".new()
