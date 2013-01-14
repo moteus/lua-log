@@ -71,8 +71,20 @@ function M.new(max_lvl, writer, formatter, logformat)
   local logger = {}
 
   function logger.writer() return writer end
-  
+
   function logger.format() return logformat end
+
+  function logger.log(lvl, ...)
+    local err lvl, err = lvl2number(lvl)
+    if not lvl then return nil, err end
+    return write(lvl, ...)
+  end
+
+  function logger.dumb(lvl, ...)
+    local err lvl, err = lvl2number(lvl)
+    if not lvl then return nil, err end
+    return dump(lvl, ...)
+  end
 
   function logger.set_lvl(lvl)
     local err lvl, err = lvl2number(lvl)
