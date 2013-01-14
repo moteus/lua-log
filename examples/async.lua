@@ -8,7 +8,7 @@ local writer = require "log.writer.list".new(
   )
 )
 
-local LOG = require"log".new(nil, writer)
+local LOG = require"log".new(writer)
 
 LOG.fatal("can not allocate memory")
 LOG.error("file not found")
