@@ -1,5 +1,7 @@
 local file = require "log.writer.file"
 
+local M = {}
+
 function M.new(log_dir, log_name, roll_count, max_size)
   return file.new{
     log_dir    = log_dir, 
