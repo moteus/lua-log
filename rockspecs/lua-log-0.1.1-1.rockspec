@@ -1,8 +1,8 @@
 package = "lua-log"
-version = "0.1.0-1"
+version = "0.1.1-1"
 source = {
-  url = "https://github.com/moteus/lua-log/archive/v0.1.0.zip",
-  dir = "lua-log-0.1.0",
+  url = "https://github.com/moteus/lua-log/archive/v0.1.1.zip",
+  dir = "lua-log-0.1.1",
 }
 
 description = {
