@@ -1,5 +1,6 @@
+print(require "ansicolors")
 local LOG = require"log".new('trace',
-  require "log.writer.console".new()
+  require "log.writer.console.color".new()
 )
 
 LOG.emerg("can not allocate memory")

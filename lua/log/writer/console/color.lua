@@ -60,10 +60,6 @@ if not COLORS then -- conio
       conio.textbackground(attr[2])
       conio.cputs((text or "") .. '\n')
     end
-  else
-    COLORS = {}
-    make_attr = function(F, B) end
-    color_writeln = function (attr, text) io.write(text, '\n') end
   end
 end
 

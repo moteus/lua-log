@@ -2,12 +2,12 @@ local file = require "log.writer.file"
 
 local M = {}
 
-function M.new(log_dir, log_name, max_rows)
+function M.new(log_dir, log_name, roll_count, max_size)
   return file.new{
     log_dir    = log_dir, 
     log_name   = log_name,
-    max_rows   = max_rows,
-    by_day     = true,
+    max_size   = max_size,
+    roll_count = assert(roll_count),
     close_file = false,
   }
 end
