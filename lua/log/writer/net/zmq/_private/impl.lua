@@ -25,10 +25,6 @@ local function socket(ctx, stype, is_srv, addr, timeout)
     PUB  = zmq.PUB;
   }
   stype = assert(stypes[stype], 'Unsupported socket type')
-
-  if ctx and type(ctx) ~= 'userdata' then
-    ctx, addr, timeout = nil, ctx, addr
-  end
   timeout = timeout or 100
   ctx = context(ctx)
 
@@ -48,6 +44,10 @@ local function init(stype, is_srv)
   local M = {}
 
   function M.new(ctx, addr, timeout) 
+    if ctx and type(ctx) ~= 'userdata' then
+      ctx, addr, timeout = nil, ctx, addr
+    end
+
     local skt = socket(ctx, stype, is_srv, addr, timeout)
     return function(fmt, ...) skt:send((fmt(...))) end
   end
