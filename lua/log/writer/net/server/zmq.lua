@@ -1,7 +1,7 @@
-local Private = require "log.writer.net.zmq._private"
+local Z    = require "log.writer.net.zmq._private.compat"
+local IMPL = require "log.writer.net.zmq._private.impl"
 
-local zmq, ETERM, zstrerror, zassert, zrecv = 
-  Private.zmq, Private.ETERM, Private.zstrerror, Private.zassert, Private.zrecv  
+local zmq, ETERM, zstrerror, zassert, zrecv = Z.zmq, Z.ETERM, Z.strerror, Z.assert, Z.recv
 
 local log_packer = require "log.logformat.proxy.pack"
 
@@ -15,7 +15,7 @@ function _M.run(writer, logformat, ctx, stype, address, addr_sync)
   }
   stype = assert(stypes[stype], 'Unsupported socket type')
 
-  ctx = Private.context(ctx)
+  ctx = IMPL.context(ctx)
 
   local skt = zassert(ctx:socket(stype))
   zassert(skt:bind(address))

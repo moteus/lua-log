@@ -1,1 +1,1 @@
-return require "log.writer.net.zmq._private".init('PUSH', false)
+return require "log.writer.net.zmq._private.impl".init('PUSH', false)

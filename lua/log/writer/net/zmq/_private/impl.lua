@@ -1,42 +1,10 @@
-local function prequire(...) 
-  local ok, mod = pcall(require, ...)
-  return ok and mod, mod or nil
-end
-
 local Log = require "log"
+local Z   = require "log.writer.net.zmq._private.compat"
 
-local zmq, zthreads, zstrerror, zassert, zrecv, ETERM
-
-zmq = prequire "lzmq"
-if zmq then
-  zthreads  = prequire "lzmq.threads"
-  ETERM     = zmq.errors.ETERM
-  zstrerror = zmq.strerror
-  zassert   = zmq.assert
-  zrecv     = function(skt)
-    local r, err = skt:recv_all()
-    return r and r[1], err
-  end
-else
-  zmq       = require "zmq"
-  zthreads  = prequire "zmq.threads"
-  ETERM     = 'closed'
-  zstrerror = function(err) return err end
-  zassert   = assert
-  zrecv     = function(skt)
-    local r, err = skt:recv()
-    if not r then return nil, err end
-    while skt:rcvmore() == 1 do
-      ok, err = skt:recv()
-      if not ok then
-        return nil, err
-      end
-    end 
-    return r
-  end
-end
-
-local zassert = zmq.assert or assert
+local zmq, zthreads = Z.zmq, Z.threads
+local zstrerror, zassert = Z.strerror, Z.assert 
+local ETERM = Z.ETERM
+local zconnect, zbind = Z.connect, Z.bind
 
 local log_ctx
 
@@ -68,8 +36,8 @@ local function socket(ctx, stype, is_srv, addr, timeout)
   if ctx.autoclose then ctx:autoclose(skt) end
   skt:set_sndtimeo(timeout)
   skt:set_linger(timeout)
-  if is_srv then zassert(skt:bind(addr)) 
-  else zassert(skt:connect(addr)) end
+  if is_srv then zassert(zbind(skt, addr)) 
+  else zassert(zconnect(skt, addr)) end
   if not ctx.autoclose then
     Log.add_cleanup(function() skt:close() end)
   end
@@ -88,12 +56,6 @@ local function init(stype, is_srv)
 end
 
 return {
-  zmq       = zmq;
-  zthreads  = zthreads;
-  zstrerror = zstrerror;
-  zassert   = zassert;
-  zrecv     = zrecv;
-  ETERM     = ETERM;
-  init      = init;
-  context   = context;
+  init    = init;
+  context = context;
 }

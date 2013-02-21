@@ -1,8 +1,8 @@
-local Private = require "log.writer.net.zmq._private"
+local Z       = require "log.writer.net.zmq._private.compat"
+local IMPL    = require "log.writer.net.zmq._private.impl"
 local server  = require "log.writer.async._private.server"
 
-local zmq, ETERM, zstrerror, zassert, zrecv = 
-  Private.zmq, Private.ETERM, Private.zstrerror, Private.zassert, Private.zrecv  
+local zmq, ETERM, zstrerror, zassert, zrecv = Z.zmq, Z.ETERM, Z.strerror, Z.assert, Z.recv
 
 local function rand_str(n)
   math.randomseed(os.time())
@@ -21,7 +21,7 @@ local function create_server(ctx, addr, maker, logformat)
   end
   logformat = logformat or "log.logformat.default"
 
-  ctx = Private.context(ctx)
+  ctx = IMPL.context(ctx)
 
   if maker then
     local addr_sync = 'inproc://' .. rand_str(15)
@@ -40,6 +40,6 @@ local M = {}
 
 M.run = create_server
 
-M.context = Private.context
+M.context = IMPL.context
 
 return M
