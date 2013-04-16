@@ -1,3 +1,7 @@
+---
+-- @module log
+--
+
 local table  = require "table"
 local string = require "string"
 local date   = require "date"
@@ -80,7 +84,7 @@ function M.new(max_lvl, writer, formatter, logformat)
     return write(lvl, ...)
   end
 
-  function logger.dumb(lvl, ...)
+  function logger.dump(lvl, ...)
     local err lvl, err = lvl2number(lvl)
     if not lvl then return nil, err end
     return dump(lvl, ...)
