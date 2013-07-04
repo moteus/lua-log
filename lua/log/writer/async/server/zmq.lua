@@ -16,7 +16,7 @@ local function rand_str(n)
 end
 
 local function create_server(ctx, addr, maker, logformat)
-  if ctx and type(ctx) ~= 'userdata' then
+  if ctx and not Z.is_ctx(ctx) then
     ctx, addr, maker, logformat = nil, ctx, addr, maker
   end
   logformat = logformat or "log.logformat.default"

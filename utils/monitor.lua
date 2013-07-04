@@ -14,12 +14,7 @@ local udp_bind_host = host
 local udp_bind_port = port
 
 local uskt = assert(socket.udp())
-if uskt.getfd then assert(uskt:setsockname(udp_bind_host, udp_bind_port))
-else 
-  print("UDP do not support!")
-  uskt:close()
-  uskt = nil
-end
+assert(uskt:setsockname(udp_bind_host, udp_bind_port))
 
 local ctx = zmq.init(1)
 local zskt = ctx:socket(zmq.SUB)
@@ -34,12 +29,10 @@ loop:add(zskt, zmq.POLLIN, function()
   else write('zmq://unknown', tostring(msg[1])) end
 end)
 
-if uskt then
-  loop:add(uskt:getfd(), zmq.POLLIN, function()
-    local msg, ip, port = uskt:receivefrom()
-    local name = 'udp://' .. ip .. ":" .. port
-    write(name, msg)
-  end)
-end
+loop:add(uskt:getfd(), zmq.POLLIN, function()
+  local msg, ip, port = uskt:receivefrom()
+  local name = 'udp://' .. ip .. ":" .. port
+  write(name, msg)
+end)
 
 loop:start()

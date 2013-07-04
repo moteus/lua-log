@@ -8,6 +8,34 @@ local zstrerror, zassert, ETERM
 local zconnect, zbind
 local zrecv_all, zrecv
 
+
+local function has_member(t, key)
+  local ok, has
+  if type(key) == "table" then
+    ok, has = pcall(function()
+      for _, k in ipairs(key) do
+        if nil == t[k] then return false end
+      end
+      return true
+    end)
+  else
+    ok, has = pcall(function()
+      return nil ~= t[key]
+    end)
+  end
+  return ok and has
+end
+
+local function is_ctx(ctx)
+  local tname = type(ctx)
+  if (tname ~= 'table') and (tname ~= 'userdata') then
+    return false
+  end
+  return has_member(ctx, {
+    'socket', 'term'
+  })
+end
+
 zmq = prequire "lzmq"
 if zmq then
   zpoller   = prequire "lzmq.poller"
@@ -79,4 +107,5 @@ return {
   strerror = zstrerror;
   assert   = zassert;
   ETERM    = ETERM;
+  is_ctx   = is_ctx;
 }

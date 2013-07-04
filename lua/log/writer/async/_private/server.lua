@@ -49,12 +49,13 @@ end
 
 local Z
 local function run_zserver(server, maker, logformat, ctx, ...)
+  Z = Z or require "log.writer.net.zmq._private.compat"
+
   assert(type(server)    == 'string')
   assert(type(maker)     == 'string')
   assert(type(logformat) == 'string')
-  assert(type(ctx)       == 'userdata')
+  assert(Z.is_ctx(ctx))
 
-  Z = Z or require "log.writer.net.zmq._private.compat"
   local zthreads  = assert(Z.threads)
   local ok, err = zthreads.runstring(ctx, Worker, server, maker, logformat, ...)
   local child_thread = assert(zthreads.runstring(ctx, Worker, server, maker, logformat, ...))

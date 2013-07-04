@@ -44,7 +44,7 @@ local function init(stype, is_srv)
   local M = {}
 
   function M.new(ctx, addr, timeout) 
-    if ctx and type(ctx) ~= 'userdata' then
+    if ctx and not Z.is_ctx(ctx) then
       ctx, addr, timeout = nil, ctx, addr
     end
 
