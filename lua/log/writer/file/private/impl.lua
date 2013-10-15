@@ -131,16 +131,30 @@ local function reset_out(FileName, isbin)
   end
 end
 
-local function reset_out2(FileName, isbin)
-  local FILE_APPEND  = 'a+' .. (isbin and 'b' or '')
-  local FILE_REWRITE = 'w+'
-  local END_OF_LINE  = '\n'
-  local f, err = io.open(FileName , FILE_REWRITE);
-  if not f then return nil, err end
+local function make_no_close_reset(flush_interval)
+  return function (FileName, isbin)
+    local FILE_APPEND  = 'a+' .. (isbin and 'b' or '')
+    local FILE_REWRITE = 'w+'
+    local END_OF_LINE  = '\n'
+    local f, err = io.open(FileName , FILE_REWRITE);
+    if not f then return nil, err end
 
-  return function (msg)
-    f:write(msg, END_OF_LINE)
-  end, function() f:close() end
+    local writer
+    if flush_interval then
+      local flush_interval, counter = flush_interval, 0
+      writer = function (msg)
+        f:write(msg, END_OF_LINE)
+        counter = counter + 1
+        if counter > flush_interval then
+          f:flush()
+          counter = 0
+        end 
+      end
+    else
+      writer = function (msg) f:write(msg, END_OF_LINE) end
+    end
+    return writer, function() f:close() end
+  end
 end
 
 local function split_ext(fname)
@@ -318,13 +332,14 @@ function file_logger:init(opt)
     path_remove(full_name)
   end
 
+  local flush_interval = opt.flush_interval and assert(tonumber(opt.flush_interval), 'flush_interval must be a number');
   self.private_ = {
     -- options
     log_dir    = log_dir;
     log_name   = log_name .. log_ext;
     max_rows   = opt.max_rows or 2 * 1024 * 1024 * 1024;
     max_size   = opt.max_size or 2 * 1024 * 1024 * 1024;
-    reset_out  = opt.close_file and reset_out or reset_out2;
+    reset_out  = opt.close_file and reset_out or make_no_close_reset(flush_interval);
     arc_pfx    = opt.archive_prefix or log_name;
     roll_count = opt.roll_count and assert(tonumber(opt.roll_count), 'roll_count must be a number');
     by_day     = not not opt.by_day;
@@ -354,11 +369,12 @@ local function do_profile()
   local logger = file_logger:new{
     log_dir    = './logs';
     log_name   = "events.log";
-    -- max_rows   = 10;
-    max_size   = 70;
+    max_rows   = 1000;
+    -- max_size   = 70;
     -- roll_count = 11;
-    by_day     = true;
-    close_file = true;
+    -- by_day     = true;
+    close_file = false;
+    flush_interval = 1;
   }
 
   for i = 1, 10000 do 
