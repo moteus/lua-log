@@ -71,65 +71,90 @@ if not COLORS then -- ansicolors
   local ok, c
   if not IS_WINDOWS  then ok, c = pcall(require, "ansicolors") end
   if ok and (type(c) == 'table') then
-    COLORS = {
-      BLACK        = 1;
-      BLUE         = 2;
-      GREEN        = 3;
-      CYAN         = 4;
-      RED          = 5;
-      MAGENTA      = 6;
-      BROWN        = 7;
-      LIGHTGRAY    = 8;
-      DARKGRAY     = 9;
-      LIGHTBLUE    = 10;
-      LIGHTGREEN   = 11;
-      LIGHTCYAN    = 12;
-      LIGHTRED     = 13;
-      LIGHTMAGENTA = 14;
-      YELLOW       = 15;
-      WHITE        = 16;
-    }
-    local reset = tostring(c.reset)
-    local fore = {
-      [ COLORS.BLACK        ] = c.black  ;
-      [ COLORS.BLUE         ] = c.blue   ;
-      [ COLORS.GREEN        ] = c.green  ;
-      [ COLORS.CYAN         ] = c.cyan   ;
-      [ COLORS.RED          ] = c.red    ;
-      [ COLORS.MAGENTA      ] = c.magenta;
-      [ COLORS.BROWN        ] = c.yellow ;
-      [ COLORS.LIGHTGRAY    ] = c.white  ;
-      [ COLORS.DARKGRAY     ] = c.black   .. c.bright;
-      [ COLORS.LIGHTBLUE    ] = c.blue    .. c.bright;
-      [ COLORS.LIGHTGREEN   ] = c.green   .. c.bright;
-      [ COLORS.LIGHTCYAN    ] = c.cyan    .. c.bright;
-      [ COLORS.LIGHTRED     ] = c.red     .. c.bright;
-      [ COLORS.LIGHTMAGENTA ] = c.magenta .. c.bright;
-      [ COLORS.YELLOW       ] = c.yellow  .. c.bright;
-      [ COLORS.WHITE        ] = c.white   .. c.bright;
-    }
+    if c.black then -- version above 1.0.2
+      COLORS = {
+        BLACK        = 1;
+        BLUE         = 2;
+        GREEN        = 3;
+        CYAN         = 4;
+        RED          = 5;
+        MAGENTA      = 6;
+        BROWN        = 7;
+        LIGHTGRAY    = 8;
+        DARKGRAY     = 9;
+        LIGHTBLUE    = 10;
+        LIGHTGREEN   = 11;
+        LIGHTCYAN    = 12;
+        LIGHTRED     = 13;
+        LIGHTMAGENTA = 14;
+        YELLOW       = 15;
+        WHITE        = 16;
+      }
+      local reset = tostring(c.reset)
+      local fore = {
+        [ COLORS.BLACK        ] = c.black  ;
+        [ COLORS.BLUE         ] = c.blue   ;
+        [ COLORS.GREEN        ] = c.green  ;
+        [ COLORS.CYAN         ] = c.cyan   ;
+        [ COLORS.RED          ] = c.red    ;
+        [ COLORS.MAGENTA      ] = c.magenta;
+        [ COLORS.BROWN        ] = c.yellow ;
+        [ COLORS.LIGHTGRAY    ] = c.white  ;
+        [ COLORS.DARKGRAY     ] = c.black   .. c.bright;
+        [ COLORS.LIGHTBLUE    ] = c.blue    .. c.bright;
+        [ COLORS.LIGHTGREEN   ] = c.green   .. c.bright;
+        [ COLORS.LIGHTCYAN    ] = c.cyan    .. c.bright;
+        [ COLORS.LIGHTRED     ] = c.red     .. c.bright;
+        [ COLORS.LIGHTMAGENTA ] = c.magenta .. c.bright;
+        [ COLORS.YELLOW       ] = c.yellow  .. c.bright;
+        [ COLORS.WHITE        ] = c.white   .. c.bright;
+      }
 
-    local back = {
-      [ COLORS.BLACK        ] = c.onblack  ;
-      [ COLORS.BLUE         ] = c.onblue   ;
-      [ COLORS.GREEN        ] = c.ongreen  ;
-      [ COLORS.CYAN         ] = c.oncyan   ;
-      [ COLORS.RED          ] = c.onred    ;
-      [ COLORS.MAGENTA      ] = c.onmagenta;
-      [ COLORS.BROWN        ] = c.onyellow ;
-      [ COLORS.LIGHTGRAY    ] = c.onwhite  ;
-      [ COLORS.DARKGRAY     ] = c.onblack   .. c.bright;
-      [ COLORS.LIGHTBLUE    ] = c.onblue    .. c.bright;
-      [ COLORS.LIGHTGREEN   ] = c.ongreen   .. c.bright;
-      [ COLORS.LIGHTCYAN    ] = c.oncyan    .. c.bright;
-      [ COLORS.LIGHTRED     ] = c.onred     .. c.bright;
-      [ COLORS.LIGHTMAGENTA ] = c.onmagenta .. c.bright;
-      [ COLORS.YELLOW       ] = c.onyellow  .. c.bright;
-      [ COLORS.WHITE        ] = c.onwhite   .. c.bright;
-    }
+      local back = {
+        [ COLORS.BLACK        ] = c.onblack  ;
+        [ COLORS.BLUE         ] = c.onblue   ;
+        [ COLORS.GREEN        ] = c.ongreen  ;
+        [ COLORS.CYAN         ] = c.oncyan   ;
+        [ COLORS.RED          ] = c.onred    ;
+        [ COLORS.MAGENTA      ] = c.onmagenta;
+        [ COLORS.BROWN        ] = c.onyellow ;
+        [ COLORS.LIGHTGRAY    ] = c.onwhite  ;
+        [ COLORS.DARKGRAY     ] = c.onblack   .. c.bright;
+        [ COLORS.LIGHTBLUE    ] = c.onblue    .. c.bright;
+        [ COLORS.LIGHTGREEN   ] = c.ongreen   .. c.bright;
+        [ COLORS.LIGHTCYAN    ] = c.oncyan    .. c.bright;
+        [ COLORS.LIGHTRED     ] = c.onred     .. c.bright;
+        [ COLORS.LIGHTMAGENTA ] = c.onmagenta .. c.bright;
+        [ COLORS.YELLOW       ] = c.onyellow  .. c.bright;
+        [ COLORS.WHITE        ] = c.onwhite   .. c.bright;
+      }
 
-    make_attr = function (F, B) return fore[F] .. back[B] end
-    color_writeln = function (attr, text) io.write(attr, text, reset, '\n') end
+      make_attr = function (F, B) return fore[F] .. back[B] end
+      color_writeln = function (attr, text) io.write(attr, text, reset, '\n') end
+    elseif c.noReset then -- 1.0.2
+      COLORS = {
+        BLACK        = 'black';
+        BLUE         = 'blue';
+        GREEN        = 'green';
+        CYAN         = 'cyan';
+        RED          = 'red';
+        MAGENTA      = 'magenta';
+        BROWN        = 'yellow';
+        LIGHTGRAY    = 'white';
+        DARKGRAY     = 'bright black';
+        LIGHTBLUE    = 'bright blue';
+        LIGHTGREEN   = 'bright green';
+        LIGHTCYAN    = 'bright cyan';
+        LIGHTRED     = 'bright red';
+        LIGHTMAGENTA = 'bright magenta';
+        YELLOW       = 'bright yellow';
+        WHITE        = 'bright white';
+      }
+
+      make_attr = function (F, B) return c.noReset("%{" .. F .. " " .. B .. "bg}") end
+      local RESET = c.noReset("%{reset}")
+      color_writeln = function (attr, text) io.write(attr, (text), RESET, '\n') end
+    end
   end
   if ok and (type(c) == 'function') then
     COLORS = {
