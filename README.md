@@ -94,3 +94,7 @@ LOG.notice("message has 2 file")
 
 print("Press enter ...") io.flush() io.read()
 ```
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/moteus/lua-log/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
