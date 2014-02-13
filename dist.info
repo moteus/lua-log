@@ -1,0 +1,12 @@
+name = "lua-log"
+version = "0.1.3"
+
+desc = "Asynchronous logging library"
+author = "Alexey Melnichuk"
+license = "MIT/X11"
+url = "https://github.com/moteus/lua-log"
+maintainer = "Alexey Melnichuk"
+
+depends = {
+  "lua >= 5.1"
+}
