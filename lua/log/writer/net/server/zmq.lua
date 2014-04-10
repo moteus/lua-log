@@ -35,8 +35,8 @@ function _M.run(writer, logformat, ctx, stype, address, addr_sync)
       local msg, lvl, now = unpack(msg)
       if msg and lvl and now then writer(logformat, msg, lvl, now) end
     else
-      if err == ETERM then break end
-      io.stderr:write('log.writer.net.zmq.server: ', err, zstrerror(err))
+      if zerrcode(err) == ETERM then break end
+      io.stderr:write('log.writer.net.zmq.server: ', tostring(err), zstrerror(err))
     end
   end
 
