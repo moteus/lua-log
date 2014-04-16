@@ -37,8 +37,10 @@ local function path_fullpath(P)
     if ch1 == '~' then         -- ~/temp
       local base = os.getenv('HOME')
       P = ((ch2 == DIR_SEP) and remove_dir_end(base) or ensure_dir_end(base)) .. string.sub(P,2)
-    else 
-      P = ensure_dir_end(lfs.currentdir()) .. P
+    else
+      if P:sub(1,1) ~= '/' then
+        P = ensure_dir_end(lfs.currentdir()) .. P
+      end
     end
   end
 
