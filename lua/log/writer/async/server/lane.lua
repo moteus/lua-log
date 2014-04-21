@@ -9,7 +9,7 @@ end
 
 local LOG   = require "log"
 local lanes = require "lanes".configure{
-  with_timers=false, 
+  with_timers     = false,
   on_state_create = on_lane_create,
 }
 local pack  = require "log.logformat.proxy.pack".pack
@@ -21,15 +21,10 @@ local function context()
   return queue
 end
 
-local function start_log_thread(maker)
-  return lanes.gen("*", log_thread_fn)(maker)
-end
-
 local function log_thread_fn(maker, logformat, channel)
   local log_packer = require "log.logformat.proxy.pack"
   local logformat  = require (logformat).new()
   local unpack     = log_packer.unpack
-  
 
   local loadstring = loadstring or load
   local writer = assert(assert(loadstring(maker))())
@@ -48,12 +43,17 @@ local function log_thread_fn(maker, logformat, channel)
   end
 end
 
+local function start_log_thread(...)
+  local fn = assert(lanes.gen("*", log_thread_fn))
+  return assert(fn(...))
+end
+
 local M = {}
 
 M.run = function(channel, maker, logformat)
   logformat = logformat or "log.logformat.default"
-  context()
-  local child_thread = assert(assert(lanes.gen("*", log_thread_fn))(maker, logformat, channel))
+  context() -- init context
+  local child_thread = start_log_thread(maker, logformat, channel)
   LOG.add_cleanup(function() child_thread:cancel(60) end)
 end
 
