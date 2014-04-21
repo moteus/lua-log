@@ -3,27 +3,43 @@ local function prequire(...)
   return ok and mod, mod or nil
 end
 
-
-local runstring
-local llthreads = prequire "llthreads.ex"
-if ok then
-  runstring = llthreads.runstring
-else
+local llthreads = prequire "llthreads2"
+if not llthreads then
   llthreads = require "llthreads"
-  runstring = function(code, ...)
-    code = [[
+end
+
+local runstring = function(code, ...)
+  code = [[do
+    local string = require "string"
+    local os = require "os"
     local loadstring = loadstring or load
     local lua_init = os.getenv("lua_init")
     if lua_init and #lua_init > 0 then
-      if lua_init:sub(1,1) == '@' then dofile(lua_init:sub(2))
+      if lua_init:sub(1,1) == '@' then dofile((lua_init:sub(2)))
       else assert(loadstring(lua_init))() end
     end
-    ]] .. code 
-    return llthreads.new(code, ...)
-  end
+  end;]] .. code 
+  return llthreads.new(code, ...)
 end
 
-local socket   = require "socket"
+local sleep do repeat
+  local socket = prequire "socket"
+  if socket then
+    sleep = function(ms) socket.sleep(ms / 1000) end
+    break
+  end
+
+  local ztimer = prequire "lzmq.timer"
+  if ztimer then
+    sleep = ztimer.sleep
+    break
+  end
+
+  --@todo find another way (use os.execute("sleep " .. ms)) on *nix
+
+  sleep = function() end
+  break
+until true end
 
 local Worker = [=[
 (function(server, maker, logformat, ...)
@@ -43,7 +59,7 @@ local function run_server(server, maker, logformat, ...)
 
   local child_thread = assert(runstring(Worker, server, maker, logformat, ...))
   child_thread:start(true)
-  socket.sleep(0.5)
+  sleep(500)
   return
 end
 
@@ -57,7 +73,6 @@ local function run_zserver(server, maker, logformat, ctx, ...)
   assert(Z.is_ctx(ctx))
 
   local zthreads  = assert(Z.threads)
-  local ok, err = zthreads.runstring(ctx, Worker, server, maker, logformat, ...)
   local child_thread = assert(zthreads.runstring(ctx, Worker, server, maker, logformat, ...))
   child_thread:start(true)
   return

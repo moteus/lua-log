@@ -1,5 +1,7 @@
 PROJECT = 'log'
 
+J = path.join
+
 if LUA_VER == '5.2' then
   LUA_DIR  = ENV.LUA_DIR_5_2 or ENV.LUA_DIR
 else
