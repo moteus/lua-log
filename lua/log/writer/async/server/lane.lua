@@ -37,7 +37,7 @@ local function log_thread_fn(maker, logformat, channel)
       if msg and lvl and now then writer(logformat, msg, lvl, now) end
     else
       if val ~= 'timeout' then
-        io.stderror:write('lane_logger: ', err)
+        io.stderror:write('lane_logger: ', val)
       end
     end
   end

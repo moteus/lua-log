@@ -12,7 +12,7 @@ local function create_writer(ctx, addr, maker)
 
   return require "log.writer.format".new(
     require "log.logformat.proxy".new(),
-    require "log.writer.net.zmq.push".new(log_ctx, addr)
+    require "log.writer.net.zmq.push".new(ctx, addr)
   )
 end
 

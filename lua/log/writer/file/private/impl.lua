@@ -260,10 +260,10 @@ function file_logger:reset_log_by_date(log_date)
   local full_name = self.private_.log_dir .. self.private_.log_name
   if path_exists(full_name) then -- previews file
     log_date = log_date or get_file_date(full_name)
-    local fname = self:next_name(log_date)
-    local ok, err = path_rename(full_name, self.private_.log_dir .. fname)
+    local next_fname = self.private_.log_dir .. self:next_name(log_date)
+    local ok, err = path_rename(full_name, next_fname)
     if not ok then 
-      return nil, string.format("can not rename '%s' to '%s' : ", fname1, fname2, err or '')
+      return nil, string.format("can not rename '%s' to '%s' : ", full_name, next_fname, err or '')
     end
   end
 
@@ -288,11 +288,11 @@ function file_logger:check()
   end
 
   if self.private_.max_rows and (self.private_.log_rows >= self.private_.max_rows) then
-    return self:reset_log(log_date)
+    return self:reset_log()
   end
 
   if self.private_.max_size and (self.private_.log_size >= self.private_.max_size) then
-    return self:reset_log(log_date)
+    return self:reset_log()
   end
 
   return true

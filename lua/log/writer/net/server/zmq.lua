@@ -2,6 +2,7 @@ local Z    = require "log.writer.net.zmq._private.compat"
 local IMPL = require "log.writer.net.zmq._private.impl"
 
 local zmq, ETERM, zstrerror, zassert, zrecv = Z.zmq, Z.ETERM, Z.strerror, Z.assert, Z.recv
+local zerrcode = Z.errcode
 
 local log_packer = require "log.logformat.proxy.pack"
 

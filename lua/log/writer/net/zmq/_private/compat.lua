@@ -7,6 +7,7 @@ local zmq, zthreads, zpoller
 local zstrerror, zassert, ETERM
 local zconnect, zbind
 local zrecv_all, zrecv
+local zerrcode
 
 
 local function has_member(t, key)
@@ -115,6 +116,7 @@ return {
   recv_all = zrecv_all;
   recv     = zrecv;
   strerror = zstrerror;
+  errcode  = zerrcode;
   assert   = zassert;
   ETERM    = ETERM;
   is_ctx   = is_ctx;
