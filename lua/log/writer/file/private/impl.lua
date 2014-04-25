@@ -12,7 +12,7 @@ local function remove_dir_end(str)
 end
 
 local function ensure_dir_end(str)
-  return remove_dir_end(str) .. DIR_SEP 
+  return remove_dir_end(str) .. DIR_SEP
 end
 
 local function path_normolize_sep(P)
@@ -56,7 +56,7 @@ end
 
 local function attrib(P, ...)
   if IS_WINDOWS then
-    if #P < 4 and P:sub(2,2) == ':' then 
+    if #P < 4 and P:sub(2,2) == ':' then
       P = ensure_dir_end(P) -- c: => c:\
     else
       P = remove_dir_end(P) -- c:\temp\ => c:\temp
@@ -77,7 +77,7 @@ local function path_mkdir(P)
   local P = path_fullpath(P)
   local p = ''
 
-  for str in string.gmatch(ensure_dir_end(P), '.-' .. DIR_SEP) do 
+  for str in string.gmatch(ensure_dir_end(P), '.-' .. DIR_SEP) do
     p = p .. str
     if path_exists(p) then
       if not path_isdir(p) then
@@ -108,6 +108,15 @@ local function path_getsize(P)
   return attrib(P, 'size')
 end
 
+local function path_getrows(P)
+  local f, err = io.open(P, "r")
+  if not f then return 0 end
+  local count = 0
+  for _ in f:lines() do count = count + 1 end
+  f:close()
+  return count
+end
+
 local function path_remove(P)
   return os.remove(P)
 end
@@ -117,16 +126,19 @@ local function path_rename(from,to)
   return os.rename(from, to)
 end
 
-local function reset_out(FileName, isbin)
-  local FILE_APPEND  = 'a+' .. (isbin and 'b' or '')
-  local FILE_REWRITE = 'w+'
+local function reset_out(FileName, rewrite)
   local END_OF_LINE  = '\n'
-  local f, err = io.open(FileName , FILE_REWRITE);
-  if not f then return nil, err end
-  f:close();
+  local FILE_APPEND  = 'a'
+
+  if rewrite then
+    local FILE_REWRITE = 'w+'
+    local f, err = io.open(FileName , FILE_REWRITE);
+    if not f then return nil, err end
+    f:close();
+  end
 
   return function (msg)
-    local f, err = io.open(FileName , FILE_APPEND)
+    local f, err = io.open(FileName, FILE_APPEND)
     if not f then return nil, err end
     f:write(msg, END_OF_LINE)
     f:close()
@@ -134,11 +146,18 @@ local function reset_out(FileName, isbin)
 end
 
 local function make_no_close_reset(flush_interval)
-  return function (FileName, isbin)
-    local FILE_APPEND  = 'a+' .. (isbin and 'b' or '')
-    local FILE_REWRITE = 'w+'
+  return function (FileName, rewrite)
     local END_OF_LINE  = '\n'
-    local f, err = io.open(FileName , FILE_REWRITE);
+    local FILE_APPEND  = 'a'
+
+    if rewrite then
+      local FILE_REWRITE = 'w+'
+      local f, err = io.open(FileName, FILE_REWRITE);
+      if not f then return nil, err end
+      f:close()
+    end
+
+    local f, err = io.open(FileName, FILE_APPEND);
     if not f then return nil, err end
 
     local writer
@@ -150,7 +169,7 @@ local function make_no_close_reset(flush_interval)
         if counter > flush_interval then
           f:flush()
           counter = 0
-        end 
+        end
       end
     else
       writer = function (msg) f:write(msg, END_OF_LINE) end
@@ -184,10 +203,10 @@ local EOL_SIZE = IS_WINDOWS and 2 or 1
 
 local function get_file_date(fname)
   local mdate = path_getmtime(fname)
-  if mdate then 
+  if mdate then
     mdate = date(mdate):tolocal()
-  else 
-    mdate = date() 
+  else
+    mdate = date()
   end
   return mdate:fmt(FILE_LOG_DATE_FMT)
 end
@@ -200,39 +219,63 @@ function file_logger:close()
   self.private_.logger_close = nil
 end
 
-function file_logger:open()
-  local full_name = self.private_.log_dir .. self.private_.log_name
-  local logger, err = self.private_.reset_out(full_name)
-  if not logger then 
+function file_logger:open(reuse)
+  local full_name = self:current_name()
+  
+  reuse = reuse and path_exists(full_name)
+  if reuse then
+    self.private_.log_date = get_file_date(full_name)
+    self.private_.log_rows = path_getrows(full_name) or 0
+    self.private_.log_size = path_getsize(full_name) or 0
+  end
+
+  local logger, err = self.private_.reset_out(full_name, not reuse)
+  if not logger then
     return nil, string.format("can not create logger for file '%s':", full_name, err)
   end
 
   self.private_.logger       = logger
   self.private_.logger_close = err
-  self.private_.log_date     = os.date(FILE_LOG_DATE_FMT)
-  self.private_.log_rows     = 0
-  self.private_.log_size     = 0
+
+  if not reuse then
+    self.private_.log_date = os.date(FILE_LOG_DATE_FMT)
+    self.private_.log_rows = 0
+    self.private_.log_size = 0
+  end
+
   return true
+end
+
+function file_logger:current_name()
+  return self.private_.log_dir .. self.private_.log_name
+end
+
+function file_logger:archive_roll_name(i)
+  return self.private_.log_dir .. string.format("%s.%.5d.log", self.private_.arc_pfx, i)
+end
+
+function file_logger:archive_date_name(d, i)
+  return self.private_.log_dir .. string.format("%s.%s.%.5d.log", self.private_.arc_pfx, d, i)
 end
 
 function file_logger:reset_log_by_roll()
   self:close()
 
-  local full_name  = self.private_.log_dir .. self.private_.log_name
-  local first_name = self.private_.log_dir .. string.format("%s.%.5d.log", self.private_.arc_pfx, 1)
+  local full_name  = self:current_name()
+  local first_name = self.archive_roll_name(1)
 
   -- we must "free" space for current file
   if path_exists(first_name) then
     for i = self.private_.roll_count - 1, 1, -1 do
-      local fname1 = self.private_.log_dir .. string.format("%s.%.5d.log", self.private_.arc_pfx, i)
-      local fname2 = self.private_.log_dir .. string.format("%s.%.5d.log", self.private_.arc_pfx, i + 1)
+      local fname1 = self.archive_roll_name(i)
+      local fname2 = self.archive_roll_name(i + 1)
       path_rename(fname1, fname2)
     end
   end
 
   if path_exists(full_name) then
     local ok, err = path_rename(full_name, first_name)
-    if not ok then 
+    if not ok then
       return nil, string.format("can not rename '%s' to '%s' : %s", full_name, first_name, err or '')
     end
   end
@@ -240,16 +283,15 @@ function file_logger:reset_log_by_roll()
   return self:open()
 end
 
-function file_logger:next_name(log_date)
-  local id      = self.private_.id
-  local log_dir = self.private_.log_dir
-  local arc_pfx = self.private_.arc_pfx
+function file_logger:next_date_name(log_date)
+  local id = self.private_.id
 
-  local fname = string.format("%s.%s.%.5d.log", arc_pfx, log_date, id)
-  while(path_exists(log_dir .. fname))do
+  local fname = self:archive_date_name(log_date, id)
+  while path_exists(fname) do
     id = id + 1
-    fname = string.format("%s.%s.%.5d.log", arc_pfx, log_date, id)
+    fname = self:archive_date_name(log_date, id)
   end
+
   self.private_.id = id
   return fname
 end
@@ -257,12 +299,12 @@ end
 function file_logger:reset_log_by_date(log_date)
   self:close()
 
-  local full_name = self.private_.log_dir .. self.private_.log_name
+  local full_name = self:current_name()
   if path_exists(full_name) then -- previews file
     log_date = log_date or get_file_date(full_name)
-    local next_fname = self.private_.log_dir .. self:next_name(log_date)
+    local next_fname = self:next_date_name(log_date)
     local ok, err = path_rename(full_name, next_fname)
-    if not ok then 
+    if not ok then
       return nil, string.format("can not rename '%s' to '%s' : ", full_name, next_fname, err or '')
     end
   end
@@ -282,7 +324,7 @@ function file_logger:check()
     local now = os.date(FILE_LOG_DATE_FMT)
     if self.private_.log_date ~= now then
       local ok, err = self:reset_log_by_date(self.private_.log_date)
-      self.private_.id       = 1
+      self.private_.id = 1
       return ok, err
     end
   end
@@ -329,12 +371,13 @@ function file_logger:init(opt)
 
   log_dir = ensure_dir_end( log_dir )
   local full_name = log_dir .. log_name .. log_ext
-  if(0 == path_getsize(full_name))then 
+  local current_size = path_getsize(full_name)
+  if 0 == current_size then
     -- prevent rename zero size logfile
     path_remove(full_name)
   end
 
-  local flush_interval = opt.flush_interval and assert(tonumber(opt.flush_interval), 'flush_interval must be a number');
+  local flush_interval = opt.flush_interval and assert(tonumber(opt.flush_interval), 'flush_interval must be a number') or 1
   self.private_ = {
     -- options
     log_dir    = log_dir;
@@ -350,13 +393,20 @@ function file_logger:init(opt)
     -- log_date = ;  -- date when current log file was create
     -- log_rows = 0; -- how many lines in current log file
     -- log_size = 0;
-    id       = 1;  -- number file in current log_date
+    id       = 1;  -- numbers of file in current log_date
   }
   if self.private_.roll_count then
     assert(self.private_.roll_count > 0)
   end
 
-  assert(self:reset_log())
+
+  local reuse_log = true
+
+  if reuse_log then
+    assert(self:open(true))
+  else
+    assert(self:reset_log())
+  end
 
   return self
 end
@@ -379,7 +429,7 @@ local function do_profile()
     flush_interval = 1;
   }
 
-  for i = 1, 10000 do 
+  for i = 1, 10000 do
     local msg = string.format("%5d", i)
     logger:write(msg)
   end
