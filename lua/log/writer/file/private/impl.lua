@@ -262,13 +262,13 @@ function file_logger:reset_log_by_roll()
   self:close()
 
   local full_name  = self:current_name()
-  local first_name = self.archive_roll_name(1)
+  local first_name = self:archive_roll_name(1)
 
   -- we must "free" space for current file
   if path_exists(first_name) then
     for i = self.private_.roll_count - 1, 1, -1 do
-      local fname1 = self.archive_roll_name(i)
-      local fname2 = self.archive_roll_name(i + 1)
+      local fname1 = self:archive_roll_name(i)
+      local fname2 = self:archive_roll_name(i + 1)
       path_rename(fname1, fname2)
     end
   end
@@ -416,14 +416,14 @@ function file_logger:new(...)
 end
 
 local function do_profile()
-  require "profiler".start()
+  -- require "profiler".start()
 
   local logger = file_logger:new{
     log_dir    = './logs';
     log_name   = "events.log";
-    max_rows   = 1000;
-    -- max_size   = 70;
-    -- roll_count = 11;
+    -- max_rows   = 1000;
+    max_size   = 70;
+    roll_count = 11;
     -- by_day     = true;
     close_file = false;
     flush_interval = 1;
@@ -436,5 +436,7 @@ local function do_profile()
 
   logger:close()
 end
+
+do_profile()
 
 return file_logger
