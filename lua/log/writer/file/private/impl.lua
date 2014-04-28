@@ -219,29 +219,19 @@ function file_logger:close()
   self.private_.logger_close = nil
 end
 
-function file_logger:open(reuse)
+function file_logger:open()
   local full_name = self:current_name()
-  
-  reuse = reuse and path_exists(full_name)
-  if reuse then
-    self.private_.log_date = get_file_date(full_name)
-    self.private_.log_rows = path_getrows(full_name) or 0
-    self.private_.log_size = path_getsize(full_name) or 0
-  end
 
-  local logger, err = self.private_.reset_out(full_name, not reuse)
+  local logger, err = self.private_.reset_out(full_name)
   if not logger then
     return nil, string.format("can not create logger for file '%s':", full_name, err)
   end
 
   self.private_.logger       = logger
   self.private_.logger_close = err
-
-  if not reuse then
-    self.private_.log_date = os.date(FILE_LOG_DATE_FMT)
-    self.private_.log_rows = 0
-    self.private_.log_size = 0
-  end
+  self.private_.log_date     = os.date(FILE_LOG_DATE_FMT)
+  self.private_.log_rows     = 0
+  self.private_.log_size     = 0
 
   return true
 end
@@ -382,8 +372,8 @@ function file_logger:init(opt)
     -- options
     log_dir    = log_dir;
     log_name   = log_name .. log_ext;
-    max_rows   = opt.max_rows or 2 * 1024 * 1024 * 1024;
-    max_size   = opt.max_size or 2 * 1024 * 1024 * 1024;
+    max_rows   = opt.max_rows or math.huge;
+    max_size   = opt.max_size or math.huge;
     reset_out  = opt.close_file and reset_out or make_no_close_reset(flush_interval);
     arc_pfx    = opt.archive_prefix or log_name;
     roll_count = opt.roll_count and assert(tonumber(opt.roll_count), 'roll_count must be a number');
@@ -399,11 +389,31 @@ function file_logger:init(opt)
     assert(self.private_.roll_count > 0)
   end
 
+  local reuse_log = opt.reuse
 
-  local reuse_log = true
+  if reuse_log and current_size and (current_size > 0) then
+    self.private_.log_date = get_file_date(full_name)
 
-  if reuse_log then
-    assert(self:open(true))
+    if opt.max_rows then
+      self.private_.log_rows = path_getrows(full_name) or 0
+    else
+      self.private_.log_rows = 0
+    end
+
+    if opt.max_size then
+      self.private_.log_size = path_getsize(full_name) or 0
+    else
+      self.private_.log_size = 0
+    end
+
+    local logger, err = self.private_.reset_out(full_name)
+    if not logger then
+      error(string.format("can not create logger for file '%s':", full_name, err))
+    end
+
+    self.private_.logger       = logger
+    self.private_.logger_close = err
+
   else
     assert(self:reset_log())
   end
@@ -416,17 +426,18 @@ function file_logger:new(...)
 end
 
 local function do_profile()
-  -- require "profiler".start()
+  require "profiler".start()
 
   local logger = file_logger:new{
-    log_dir    = './logs';
-    log_name   = "events.log";
-    -- max_rows   = 1000;
-    max_size   = 70;
-    roll_count = 11;
-    -- by_day     = true;
-    close_file = false;
+    log_dir        = './logs';
+    log_name       = "events.log";
+    max_rows       = 1000;
+    max_size       = 70;
+    roll_count     = 11;
+    -- by_day         = true;
+    close_file     = false;
     flush_interval = 1;
+    reuse          = true
   }
 
   for i = 1, 10000 do
@@ -436,7 +447,5 @@ local function do_profile()
 
   logger:close()
 end
-
-do_profile()
 
 return file_logger
