@@ -104,7 +104,7 @@ function test_reuse_rows()
   assert_equal(1, count_logs(TESTDIR))
 end
 
-function test_rest_rows()
+function test_reset_rows()
   logger = file_logger:new{
     log_dir = TESTDIR; log_name = "events.log"; max_rows = 100;
   }
@@ -122,6 +122,18 @@ function test_rest_rows()
   write_logs(1)
 
   assert_equal(2, count_logs(TESTDIR))
+end
+
+function test_roll_count()
+  logger = file_logger:new{
+    log_dir = TESTDIR; log_name = "events.log";
+    max_rows = 10; roll_count = 5;
+  }
+
+  write_logs(100)
+
+  -- active log + archive logs
+  assert_equal(6, count_logs(TESTDIR))
 end
 
 end
