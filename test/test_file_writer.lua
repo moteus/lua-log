@@ -26,6 +26,7 @@ local function read_file(P)
 end
 
 local function remove_dir(f)
+  if not path.exists(f) then return end
   local mask = path.ensure_dir_end(f)
   path.each(mask, function(f)
     collectgarbage("collect") collectgarbage("collect")
