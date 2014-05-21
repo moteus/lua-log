@@ -88,14 +88,16 @@ print("Press enter ...") io.flush() io.read()
 
 ##Dependences##
 ###core###
-* LuaDate
+* [LuaDate](https://github.com/Tieske/date)
 
 ###writer.async.udp###
-* [llthreads](http://github.com/Neopallium/lua-llthreads)
+* [llthreads2](http://github.com/moteus/lua-llthreads2)
+* or [llthreads](http://github.com/Neopallium/lua-llthreads)
 * writer.net.udp
 
 ###writer.async.zmq###
-* [llthreads](http://github.com/Neopallium/lua-llthreads)
+* [llthreads2](http://github.com/moteus/lua-llthreads2)
+* or [llthreads](http://github.com/Neopallium/lua-llthreads)
 * writer.net.zmq
 
 ###writer.async.lane###
@@ -113,8 +115,8 @@ print("Press enter ...") io.flush() io.read()
 * [LuaSocket](http://www.impa.br/~diego/software/luasocket)
 
 ###writer.net.zmq###
-* [lua-zmq](http://github.com/Neopallium/lua-zmq)
-* or [lzmq](http://github.com/moteus/lzmq)
+* [lzmq](http://github.com/moteus/lzmq)
+* or [lua-zmq](http://github.com/Neopallium/lua-zmq)
 
 ###writer.net.smtp###
 * [LuaSocket](http://www.impa.br/~diego/software/luasocket)
