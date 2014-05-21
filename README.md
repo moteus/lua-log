@@ -6,8 +6,6 @@ Asynchronous logging library for Lua 5.1/5.2
 
 Write to roll file and to console.
 ```lua
-local MB = 
-
 local LOG = require "log".new(
   -- maximum log level
   "trace",
