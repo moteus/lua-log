@@ -54,6 +54,7 @@ end
 local LUA_MAJOR, LUA_MINOR = lua_version()
 local LUA_VERSION = LUA_MAJOR * 100 + LUA_MINOR
 local LUA_52 = 502
+local IS_WINDOWS = package.config:sub(1,1) == '\\'
 
 local function read_file(n)
   local f, e = io.open(n, "r")
@@ -67,7 +68,10 @@ exec = function(cwd, cmd, ...)
   local tmpfile = path.tmpname()
 
   cmd = path.quote(cmd)
-  if ... then cmd = path.quote(cmd .. ' ' .. string.format(...) .. ' ') end
+  if ... then
+    cmd = cmd .. ' ' .. string.format(...) .. ' '
+    if IS_WINDOWS then cmd = path.quote(cmd) end
+  end
   cmd = cmd .. ' >' .. path.quote(tmpfile) .. ' 2>&1'
 
   local p

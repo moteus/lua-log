@@ -11,6 +11,7 @@ local PATH = path.fullpath(".")
 local DATE_PAT = "%d%d%d%d%-%d%d%-%d%d %d%d:%d%d:%d%d"
 
 local function exec_file(file)
+  assert(path.isfile(file))
   return utils.exec(PATH, LUA, '%s %s', ARGS, path.quote(file))
 end
 
@@ -249,5 +250,9 @@ function test_async_filter_eq()
 end
 
 end
+
+print("-------------------------------")
+print(utils.exec(".", "lua", "-v"))
+print("-------------------------------")
 
 if not HAS_RUNNER then lunit.run() end

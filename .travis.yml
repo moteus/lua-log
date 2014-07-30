@@ -24,11 +24,13 @@ install:
   - sudo luarocks install luafilesystem
   - sudo luarocks install lua-path
   - sudo luarocks install lzmq
+  - sudo luarocks install lua-llthreads2
   - sudo luarocks make rockspecs/lua-log-scm-0.rockspec
   - sudo luarocks install luasocket
 
 script:
   - cd test
+  - lua -v
   - lunit.sh test_file_writer.lua
   - lua test_basic.lua
   - lunit.sh test_basic.lua
