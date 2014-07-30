@@ -73,7 +73,7 @@ local function run_zserver(server, maker, logformat, ctx, ...)
   assert(Z.is_ctx(ctx))
 
   local zthreads  = assert(Z.threads)
-  local child_thread = assert(zthreads.runstring(ctx, Worker, server, maker, logformat, ...))
+  local child_thread = assert((zthreads.run or zthreads.runstring)(ctx, Worker, server, maker, logformat, ...))
   child_thread:start(true)
   return
 end

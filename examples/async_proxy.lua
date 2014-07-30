@@ -33,7 +33,7 @@ local Thread = [[
   LOG.notice("(Thread) message has 2 file")
 ]]
 
-local child_thread = zthreads.runstring(ctx, Thread)
+local child_thread = zthreads.run(ctx, Thread)
 child_thread:start()
 
 LOG.fatal("can not allocate memory")

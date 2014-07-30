@@ -1,9 +1,13 @@
+-- Run two writers in separate threads 
+-- and spread log messages between them
 
-require "log.writer.async.server.zmq".run("inproc://main.logger1",
+local Server = require "log.writer.async.server.zmq"
+
+Server.run("inproc://main.logger1",
   "return require 'log.writer.file.by_day'.new('./logs', 'events1.log', 6000)"
 )
 
-require "log.writer.async.server.zmq".run("inproc://main.logger2",
+Server.run("inproc://main.logger2",
   "return require 'log.writer.file.by_day'.new('./logs', 'events2.log', 6000)"
 )
 

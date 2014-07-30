@@ -1,14 +1,13 @@
-language: erlang
+language: c
 
 env:
   global:
-    - PLATFORM=linux
-    - LUAROCKS_VER=2.1.0
+    - LUAROCKS=2.2.0beta1
 
   matrix:
-    - LUA=lua5.1 LUA_SFX=
-    - LUA=lua5.2 LUA_SFX=
-    - LUA=luajit LUA_SFX=jit
+    - LUA=lua5.1
+    # - LUA=lua5.2
+    # - LUA=luajit
 
 branches:
   only:
@@ -18,15 +17,21 @@ before_install:
   - bash .travis/setup_lua.sh
 
 install:
+  - sudo apt-get install libzmq3
+  - sudo apt-get install libzmq3-dev
   - sudo luarocks install lunitx
   - sudo luarocks install date
   - sudo luarocks install luafilesystem
   - sudo luarocks install lua-path
+  - sudo luarocks install lzmq
   - sudo luarocks make rockspecs/lua-log-scm-0.rockspec
+  - sudo luarocks install luasocket
 
 script:
   - cd test
-  - lunit.sh -i lua$LUA_SFX test_file_writer.lua
+  - lunit.sh test_file_writer.lua
+  - lua test_basic.lua
+  - lunit.sh test_basic.lua
 
 notifications:
   email:
