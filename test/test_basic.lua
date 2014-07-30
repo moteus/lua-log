@@ -174,30 +174,35 @@ end
 function test_async_proxy()
   local ok, status, msg = exec_code[[
     local zthreads = require "lzmq.threads"
+    local ztimer   = require 'lzmq.timer'
 
     -- create log thread
     local LOG = require"log".new(
-      require "log.writer.async.zmq".new('inproc://async.logger',
+      require "log.writer.async.zmq".new(zthreads.context(), 'inproc://async.logger',
         "return require 'log.writer.stdout'.new()"
       )
     )
+    ztimer.sleep(100)
 
     -- log from separate thread via proxy
     local Thread = function()
+      local zthreads = require "lzmq.threads"
+
       local LOG = require"log".new(
-        require "log.writer.async.zmq".new('inproc://async.logger')
+        require "log.writer.async.zmq".new(zthreads.context(), 'inproc://async.logger')
       )
 
       LOG.error("(Thread) file not found")
     end
 
     local child_thread = zthreads.xrun(Thread):start()
+    ztimer.sleep(100)
 
     LOG.fatal("can not allocate memory")
 
     child_thread:join()
 
-    require 'lzmq.timer'.sleep(1000)
+    ztimer.sleep(500)
   ]]
   assert_true(ok, msg)
 
@@ -252,7 +257,7 @@ end
 end
 
 print("-------------------------------")
-print(utils.exec(".", "lua", "-v"))
+print(select(3, utils.exec(".", LUA, "-v")))
 print("-------------------------------")
 
 if not HAS_RUNNER then lunit.run() end

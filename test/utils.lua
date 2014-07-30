@@ -33,7 +33,26 @@ local function write_file(n, src)
   return d, e
 end
 
-local path = require "path"
+local function mkfile(P, data)
+  P = path.fullpath(P)
+  path.mkdir(path.dirname(P))
+  local f, e = io.open(P, "w+b")
+  if not f then return nil, err end
+  if data then assert(f:write(data)) end
+  f:close()
+  return P
+end
+
+local function remove_dir(f)
+  if not path.exists(f) then return end
+  local mask = path.ensure_dir_end(f)
+  path.each(mask, function(f)
+    collectgarbage("collect") collectgarbage("collect")
+    path.remove(f)
+  end, {recurse = true, delay = true, reverse = true})
+  collectgarbage("collect") collectgarbage("collect")
+  path.remove(f)
+end
 
 -----------------------------------------------------------
 local exec do
