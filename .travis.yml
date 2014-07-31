@@ -5,7 +5,7 @@ env:
     - LUAROCKS=2.2.0beta1
 
   matrix:
-    - LUA=lua5.1
+    - LUA=lua5.1 ZMQ_VER=zeromq4
     # - LUA=lua5.2
     # - LUA=luajit
 
@@ -15,10 +15,9 @@ branches:
 
 before_install:
   - bash .travis/setup_lua.sh
+  - bash .travis/setup_zmq.sh
 
 install:
-  - sudo apt-get install libzmq3
-  - sudo apt-get install libzmq3-dev
   - sudo luarocks install lunitx
   - sudo luarocks install date
   - sudo luarocks install luafilesystem

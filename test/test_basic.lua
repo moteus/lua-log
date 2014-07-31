@@ -276,8 +276,4 @@ end
 
 end
 
-print("-------------------------------")
-print(select(3, utils.exec(".", LUA, "-v")))
-print("-------------------------------")
-
 if not HAS_RUNNER then lunit.run() end
