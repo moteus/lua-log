@@ -9,6 +9,7 @@ local LUA, ARGS = utils.lua_args(arg)
 local PATH = path.fullpath(".")
 
 local DATE_PAT = "%d%d%d%d%-%d%d%-%d%d %d%d:%d%d:%d%d"
+local TESTDIR  = ".test_log"
 
 local function exec_file(file)
   assert(path.isfile(file))
@@ -122,15 +123,18 @@ end
 
 function test_async_zmq()
   local ok, status, msg = exec_code[[
+    local ztimer = require "lzmq.timer"
+
     local writer = require "log.writer.async.zmq".new('inproc://async.logger',
       "return require 'log.writer.stdout'.new()"
     )
+    ztimer.sleep(500)
 
     local LOG = require"log".new(writer)
+    ztimer.sleep(500)
 
     LOG.fatal("can not allocate memory")
-
-    require 'lzmq.timer'.sleep(1000)
+    ztimer.sleep(500)
   ]]
   assert_true(ok, msg)
 
@@ -182,7 +186,7 @@ function test_async_proxy()
         "return require 'log.writer.stdout'.new()"
       )
     )
-    ztimer.sleep(100)
+    ztimer.sleep(500)
 
     -- log from separate thread via proxy
     local Thread = function()
@@ -194,7 +198,7 @@ function test_async_proxy()
     end
 
     local child_thread = zthreads.xrun(Thread):start()
-    ztimer.sleep(100)
+    ztimer.sleep(500)
 
     LOG.fatal("can not allocate memory")
 
@@ -250,6 +254,24 @@ function test_async_filter_eq()
   assert_not_match('can not allocate memory',  msg)
   assert_match('cache server is not started',  msg)
   assert_not_match('new message is received',  msg)
+end
+
+function test_formatter_mix()
+  local ok, status, msg = exec_code[[
+    local LOG = require"log".new('trace',
+      require "log.writer.stdout".new(),
+      require "log.formatter.mix".new()
+    )
+
+    LOG.emerg("can not allocate memory")
+    LOG.alert(function(str) return str end, "can not allocate memory")
+    LOG.fatal("can not allocate %s", "memory")
+  ]]
+  assert_true(ok, msg)
+
+  assert_match(DATE_PAT .. " %[EMERG%] can not allocate memory",       msg)
+  assert_match(DATE_PAT .. " %[ALERT%] can not allocate memory",       msg)
+  assert_match(DATE_PAT .. " %[FATAL%] can not allocate memory",       msg)
 end
 
 end

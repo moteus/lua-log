@@ -3,46 +3,12 @@ local lunit      = require "lunit"
 local TEST_CASE  = assert(lunit.TEST_CASE)
 local skip       = lunit.skip or function() end
 local path       = require "path"
+local utils      = require "utils"
 
 local TESTDIR   = ".test_log"
 
-local function mkfile(P, data)
-  P = path.fullpath(P)
-  path.mkdir(path.dirname(P))
-  local f, e = io.open(P, "w+b")
-  if not f then return nil, err end
-  if data then assert(f:write(data)) end
-  f:close()
-  return P
-end
-
-local function read_file(P)
-  local f, err = io.open(P, "rb")
-  if not f then return nil, err end
-  local data, err = f:read("*all")
-  f:close()
-  if data then return data end
-  return nil, err
-end
-
-local function remove_dir(f)
-  if not path.exists(f) then return end
-  local mask = path.ensure_dir_end(f)
-  path.each(mask, function(f)
-    collectgarbage("collect") collectgarbage("collect")
-    path.remove(f)
-  end, {recurse = true, delay = true, reverse = true})
-  collectgarbage("collect") collectgarbage("collect")
-  path.remove(f)
-end
-
-local function count_logs(f)
-  local counter = 0
-  path.each(path.join(f,"*.log"), function()
-    counter = counter + 1
-  end)
-  return counter
-end
+local mkfile, read_file, remove_dir, count_logs = 
+  utils.mkfile, utils.read_file, utils.remove_dir, utils.count_logs
 
 local _ENV = TEST_CASE "test_log.writer.file" do
 

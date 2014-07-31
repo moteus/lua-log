@@ -54,6 +54,14 @@ local function remove_dir(f)
   path.remove(f)
 end
 
+local function count_logs(f)
+  local counter = 0
+  path.each(path.join(f,"*.log"), function()
+    counter = counter + 1
+  end)
+  return counter
+end
+
 -----------------------------------------------------------
 local exec do
 
@@ -132,4 +140,7 @@ return {
   read_file  = read_file;
   write_file = write_file;
   lua_args   = lua_args;
+  remove_dir = remove_dir;
+  mkfile     = mkfile;
+  count_logs = count_logs;
 }
