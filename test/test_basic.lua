@@ -156,7 +156,7 @@ end
 
 function test_async_lane()
   local ok, status, msg = exec_code[[
-    local writer = require "log.writer.async.lane".new(
+    local writer = require "log.writer.async.lane".new('lane.logger',
       "return require 'log.writer.stdout'.new()"
     )
 
@@ -178,7 +178,7 @@ function test_async_proxy()
 
     -- create log thread
     local LOG = require"log".new(
-      require "log.writer.async.zmq".new(zthreads.context(), 'inproc://async.logger',
+      require "log.writer.async.zmq".new('inproc://async.logger',
         "return require 'log.writer.stdout'.new()"
       )
     )
@@ -186,10 +186,8 @@ function test_async_proxy()
 
     -- log from separate thread via proxy
     local Thread = function()
-      local zthreads = require "lzmq.threads"
-
       local LOG = require"log".new(
-        require "log.writer.async.zmq".new(zthreads.context(), 'inproc://async.logger')
+        require "log.writer.async.zmq".new('inproc://async.logger')
       )
 
       LOG.error("(Thread) file not found")
