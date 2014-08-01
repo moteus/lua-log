@@ -1,17 +1,19 @@
 PROJECT = 'log'
 
-J = path.join
-
-if LUA_VER == '5.2' then
-  LUA_DIR  = ENV.LUA_DIR_5_2 or ENV.LUA_DIR
-else
-  LUA_DIR  = ENV.LUA_DIR
-end
-
-INSTALL_DIR = INSTALL_DIR or J(LUA_DIR,'libs',PROJECT)
+INITLAKEFILE()
 
 install = target('install', {
-  file.group{odir=J(INSTALL_DIR, 'examples');recurse = true;  src = J('examples', '*.*')};
-  file.group{odir=J(INSTALL_DIR, 'lua'     );recurse = true;  src = J('lua', '*.*'     )};
-  file.group{odir=J(INSTALL_DIR, 'utils'   );recurse = true;  src = J('utils', '*.*'   )};
+  file.group{odir = LUA_DIR; recurse = true;  src = J('lua', '*.*'     )};
+  file.group{odir = TESTDIR; recurse = true;  src = J('test', '*.*'    )};
+
+  file.group{odir = J(ROOT, 'examples');recurse = true;  src = J('examples', '*.*')};
+  file.group{odir = J(ROOT, 'utils'   );recurse = true;  src = J('utils', '*.*'   )};
 })
+
+target('test', install, function()
+  run_test('test_basic.lua')
+  run_test('test_file_writer.lua')
+  if not test_summary() then
+    quit("test fail")
+  end
+end)
