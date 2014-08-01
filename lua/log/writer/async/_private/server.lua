@@ -58,7 +58,7 @@ local function run_server(server, maker, logformat, ...)
   assert(type(logformat) == 'string')
 
   local child_thread = assert(runstring(Worker, server, maker, logformat, ...))
-  child_thread:start(true)
+  child_thread:start(true, true)
   sleep(500)
   return
 end
