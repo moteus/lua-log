@@ -1,4 +1,7 @@
 Asynchronous logging library for Lua 5.1/5.2
+[![Build Status](https://buildhive.cloudbees.com/job/moteus/job/lua-log/badge/icon)](https://buildhive.cloudbees.com/job/moteus/job/lua-log/)
+[![Build Status](https://travis-ci.org/moteus/lua-log.svg?branch=master)](https://travis-ci.org/moteus/lua-log)
+[![Licence](http://img.shields.io/badge/Licence-MIT-brightgreen.svg)](LICENCE.txt)
 
 ***
 
