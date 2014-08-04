@@ -18,6 +18,7 @@ before_install:
   - sudo apt-get install libzmq3 libzmq3-dev
 
 install:
+  - sudo luarocks install busted
   - sudo luarocks install lunitx
   - sudo luarocks install date
   - sudo luarocks install luafilesystem
@@ -33,7 +34,9 @@ script:
   - lua -v
   - lunit.sh test_file_writer.lua
   - lunit.sh test_basic.lua
-
+  - cd ../spec
+  - busted basic.lua
+  
 notifications:
   email:
     on_success: change

@@ -103,24 +103,6 @@ function test_formatter()
   assert_match('message has 2 file',       msg)
 end
 
-function test_formatter()
-  local ok, status, msg = exec_code[[
-    local writer = require "log.writer.stdout".new()
-    local LOG = require"log".new(writer,
-      require "log.formatter.concat".new(':')
-    )
-    local LOG_FMT = require"log".new(writer,
-      require "log.formatter.format".new()
-    )
-    LOG.info('new', 'message', 'is', 'received')
-    LOG_FMT.notice("message has %d %s", 2, 'file')
-  ]]
-  assert_true(ok, msg)
-
-  assert_match('new:message:is:received',  msg)
-  assert_match('message has 2 file',       msg)
-end
-
 function test_async_zmq()
   local ok, status, msg = exec_code[[
     local ztimer = require "lzmq.timer"
