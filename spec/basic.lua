@@ -9,7 +9,7 @@ local TESTDIR  = ".test_log"
 
 local function exec_file(file)
   assert(path.isfile(file))
-  return utils.exec(PATH, LUA, '%s %s', ARGS, path.quote(file))
+  return utils.exec(PATH, LUA, '%s', path.quote(file))
 end
 
 local function exec_code(src)
