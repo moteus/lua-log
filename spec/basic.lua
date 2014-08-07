@@ -129,7 +129,11 @@ describe("writers", function()
       ztimer.sleep(500)
 
       LOG.fatal("can not allocate memory")
-      ztimer.sleep(500)
+
+      ztimer.sleep(5000)
+
+      require "lzmq.threads".context():destroy()
+      ztimer.sleep(5000)
     ]]
     assert.True(ok, msg)
 
@@ -199,7 +203,11 @@ describe("writers", function()
 
       child_thread:join()
 
-      ztimer.sleep(500)
+      ztimer.sleep(5000)
+
+      zthreads.context():destroy()
+
+      ztimer.sleep(1500)
     ]]
     assert.True(ok, msg)
 
