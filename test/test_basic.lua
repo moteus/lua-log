@@ -116,7 +116,9 @@ function test_async_zmq()
     ztimer.sleep(500)
 
     LOG.fatal("can not allocate memory")
-    ztimer.sleep(500)
+
+    require "lzmq.threads".context():destroy()
+    ztimer.sleep(1500)
   ]]
   assert_true(ok, msg)
 
@@ -186,7 +188,10 @@ function test_async_proxy()
 
     child_thread:join()
 
-    ztimer.sleep(500)
+
+    zthreads.context():destroy()
+
+    ztimer.sleep(1500)
   ]]
   assert_true(ok, msg)
 
