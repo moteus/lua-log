@@ -3,7 +3,7 @@ PROJECT = 'log'
 INITLAKEFILE()
 
 install = target('install', {
-  file.group{odir = LUA_DIR; recurse = true;  src = J('lua', '*.*'     )};
+  file.group{odir = LUADIR; recurse = true;  src = J('lua', '*.*'     )};
   file.group{odir = TESTDIR; recurse = true;  src = J('test', '*.*'    )};
 
   file.group{odir = J(ROOT, 'examples');recurse = true;  src = J('examples', '*.*')};
