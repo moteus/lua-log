@@ -145,6 +145,7 @@ function test_async_udp()
 end
 
 function test_async_lane()
+  if _G.jit then return skip"FIXME: makes LuaLane work with LuaJIT" end
   local ok, status, msg = exec_code[[
     local writer = require "log.writer.async.lane".new('lane.logger',
       "return require 'log.writer.stdout'.new()"

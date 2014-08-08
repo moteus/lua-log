@@ -159,7 +159,8 @@ describe("writers", function()
     assert.match('can not allocate memory',  msg)
   end)
 
-  it('async_lane', function()
+  if _G.jit then pending"FIXME: makes LuaLane work with LuaJIT"
+  else it('async_lane', function()
     local ok, status, msg = exec_code[[
       local writer = require "log.writer.async.lane".new('lane.logger',
         "return require 'log.writer.stdout'.new()"
@@ -174,7 +175,7 @@ describe("writers", function()
     assert.True(ok, msg)
 
     assert.match('can not allocate memory',  msg)
-  end)
+  end) end
 
   it('async_proxy', function()
     local ok, status, msg = exec_code[[
