@@ -15,7 +15,7 @@ local function exec_file(file)
 end
 
 local function exec_code(src)
-  local tmpfile = path.tmpname()
+  local tmpfile = assert(path.tmpname())
   local f = assert(utils.write_file(tmpfile, src))
   local a, b, c = exec_file(tmpfile)
   path.remove(tmpfile)

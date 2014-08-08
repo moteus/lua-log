@@ -92,7 +92,8 @@ local function read_file(n)
 end
 
 exec = function(cwd, cmd, ...)
-  local tmpfile = path.tmpname()
+  assert(cmd, 'No command was provided')
+  local tmpfile = assert(path.tmpname())
 
   cmd = path.quote(cmd)
   if ... then
@@ -124,13 +125,21 @@ end
 -----------------------------------------------------------
 
 local function lua_args(arg)
+  local argv do 
+    argv = {}
+    for i = -1000, 1000 do
+      if arg[i] then argv[#argv + 1] = "[" .. i .. "]" .. arg[i] end
+    end
+    argv = table.concat(argv, ' ')
+  end
+
   local args = {}
 
   for i = -1000, -1 do
     if arg[i] then args[#args + 1] = arg[i] end
   end
 
-  local lua = table.remove(args, 1)
+  local lua = assert(table.remove(args, 1), "Can not find Lua interpreter in command string:\n" .. argv)
   args = table.concat(args, ' ')
   return lua, args
 end
