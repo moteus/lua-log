@@ -34,8 +34,8 @@ script:
   - lua -v
   - lunit.sh test_file_writer.lua
   - lunit.sh test_basic.lua
-  - cd ../spec
-  - busted basic.lua
+  - cd ..
+  - busted spec
   
 notifications:
   email:

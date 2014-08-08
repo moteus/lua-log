@@ -1,3 +1,5 @@
+package.path = './spec/?.lua;../lua/?.lua;'..package.path
+
 local path       = require "path"
 local utils      = require "utils"
 
