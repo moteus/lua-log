@@ -21,11 +21,11 @@ function _M.run(writer, logformat, ctx, stype, address, addr_sync)
   local skt = zassert(ctx:socket(stype))
   zassert(skt:bind(address))
 
+  local skt_sync
   if addr_sync then
-    local skt_sync = zassert(ctx:socket(zmq.PAIR))
+    skt_sync = zassert(ctx:socket(zmq.PAIR))
     zassert(skt_sync:connect(addr_sync))
     skt_sync:send("")
-    skt_sync:close()
   end
 
   local unpack = log_packer.unpack
@@ -42,6 +42,9 @@ function _M.run(writer, logformat, ctx, stype, address, addr_sync)
   end
 
   skt:close()
+  if skt_sync then
+    skt_sync:close()
+  end
 end
 
 return _M
