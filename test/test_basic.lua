@@ -119,8 +119,9 @@ function test_async_zmq()
 
     ztimer.sleep(5000)
 
-    -- require "lzmq.threads".context():destroy()
-    -- ztimer.sleep(5000)
+    require "lzmq.threads".context():destroy()
+
+    ztimer.sleep(5000)
   ]]
   assert_true(ok, msg)
 
@@ -193,9 +194,9 @@ function test_async_proxy()
 
     ztimer.sleep(5000)
 
-    -- zthreads.context():destroy()
+    zthreads.context():destroy()
 
-    -- ztimer.sleep(1500)
+    ztimer.sleep(1500)
   ]]
   assert_true(ok, msg)
 
