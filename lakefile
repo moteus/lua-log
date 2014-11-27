@@ -13,6 +13,7 @@ install = target('install', {
 target('test', install, function()
   run_test('test_basic.lua')
   run_test('test_file_writer.lua')
+  run_test('test_zmq_finalizer.lua')
   if not test_summary() then
     quit("test fail")
   end

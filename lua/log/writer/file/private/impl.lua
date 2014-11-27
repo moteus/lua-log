@@ -1,3 +1,4 @@
+local Log    = require "log"
 local io     = require "io"
 local os     = require "os"
 local string = require "string"
@@ -422,7 +423,9 @@ function file_logger:init(opt)
 end
 
 function file_logger:new(...)
-  return setmetatable({}, {__index = self}):init(...)
+  local o = setmetatable({}, {__index = self}):init(...)
+  Log.add_cleanup(function() o:close() end)
+  return o
 end
 
 local function do_profile()

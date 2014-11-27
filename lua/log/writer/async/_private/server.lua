@@ -43,12 +43,13 @@ until true end
 
 local Worker = [=[
 (function(server, maker, logformat, ...)
+  local Log = require "log"
   local logformat = require(logformat).new()
 
   local loadstring = loadstring or load
   local writer = assert(loadstring(maker))()
 
-  require(server).run(writer, logformat, ...)
+  require(server).run(writer, Log.close, logformat, ...)
 end)(...)
 ]=]
 

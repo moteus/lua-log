@@ -23,7 +23,7 @@ install:
   - sudo luarocks install date
   - sudo luarocks install luafilesystem
   - sudo luarocks install lua-path
-  - sudo luarocks install lzmq
+  - sudo luarocks install lzmq --server=https://rocks.moonscript.org/dev
   - sudo luarocks install lua-llthreads2
   - sudo luarocks install lanes
   - sudo luarocks make rockspecs/lua-log-scm-0.rockspec
@@ -31,9 +31,10 @@ install:
 
 script:
   - cd test
-  - lua -v
+  - lua -v -e"print(require 'lzmq'.version(true))"
   - lunit.sh test_file_writer.lua
   - lunit.sh test_basic.lua
+  - lua test_zmq_finalizer.lua
   - cd ..
   - busted spec
   

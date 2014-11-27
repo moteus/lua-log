@@ -102,7 +102,7 @@ local function Date2SysLog(now)
   local b = -now:getbias(); 
   local x = abs(b); 
 
-  return fmt("%.4d-%.2d-%.2dT%.2d:%.2d:%.2d %s%.2d:%.2d", Y, M, D, h, m, s,
+  return fmt("%.4d-%.2d-%.2dT%.2d:%.2d:%.2d%s%.2d:%.2d", Y, M, D, h, m, s,
     b < 0 and "-" or "+", fix(x/60), floor(mod(x,60))
   )
 end
