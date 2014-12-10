@@ -2,6 +2,8 @@
 -- @module log
 --
 
+local _VERSION = "0.1.5-dev"
+
 local table  = require "table"
 local string = require "string"
 local date   = require "date"
@@ -44,13 +46,14 @@ local function lvl2number(lvl)
   return nil, 'unsupported log leve type: ' .. type(lvl)
 end
 
-local M = {}
-M.LVL = LOG_LVL
-M.LVL_NAMES = LOG_LVL_NAMES
+local Log = {}
+Log._VERSION = _VERSION
+Log.LVL = LOG_LVL
+Log.LVL_NAMES = LOG_LVL_NAMES
 
-M.lvl2number = lvl2number
+Log.lvl2number = lvl2number
 
-function M.new(max_lvl, writer, formatter, logformat)
+function Log.new(max_lvl, writer, formatter, logformat)
   if max_lvl and type(max_lvl) ~= 'number' and type(max_lvl) ~= 'string' then
     max_lvl, writer, formatter, logformat = nil, max_lvl, writer, formatter
   end
@@ -110,7 +113,7 @@ function M.new(max_lvl, writer, formatter, logformat)
   return logger
 end
 
-function M.add_cleanup(fn)
+function Log.add_cleanup(fn)
   assert(type(fn)=='function')
   for k,v in ipairs(destroy_list) do
     if v == fn then return end
@@ -119,7 +122,7 @@ function M.add_cleanup(fn)
   return fn
 end
 
-function M.remove_cleanup(fn)
+function Log.remove_cleanup(fn)
   for k,v in ipairs(destroy_list) do
     if v == fn then 
       table.remove(destroy_list, k)
@@ -128,7 +131,7 @@ function M.remove_cleanup(fn)
   end
 end
 
-function M.close()
+function Log.close()
   for k,fn in ipairs(destroy_list) do pcall(fn) end
   for logger in pairs(loggers_list) do
     logger.fotal   = emptyfn;
@@ -143,4 +146,4 @@ function M.close()
   destroy_list = {}
 end
 
-return M
+return Log
