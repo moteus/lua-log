@@ -2,7 +2,7 @@
 -- @module log
 --
 
-local _VERSION = "0.1.5-dev"
+local _VERSION = "0.1.5"
 
 local table  = require "table"
 local string = require "string"

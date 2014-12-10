@@ -10,7 +10,7 @@ description = {
   detailed = [[
   ]],
   homepage = "https://github.com/moteus/lua-log",
-  -- license = ""
+  license  = "MIT/X11",
 }
 
 dependencies = {
