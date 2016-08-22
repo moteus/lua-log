@@ -33,6 +33,7 @@ build = {
   modules = {
     ["log"                         ] = "lua/log.lua",
     ["log.formatter.concat"        ] = "lua/log/formatter/concat.lua",
+    ["log.formatter.default"       ] = "lua/log/formatter/default.lua",
     ["log.formatter.format"        ] = "lua/log/formatter/format.lua",
     ["log.formatter.mix"           ] = "lua/log/formatter/mix.lua",
     ["log.logformat.default"       ] = "lua/log/logformat/default.lua",

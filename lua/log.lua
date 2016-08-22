@@ -60,7 +60,9 @@ function Log.new(max_lvl, writer, formatter, logformat)
 
   max_lvl = assert(lvl2number ( max_lvl or LOG_LVL.INFO ) )
 
-  formatter = formatter or function(msg) return msg end
+  if not formatter then
+    formatter = require"log.formatter.default".new()
+  end
 
   if not logformat then
     logformat = require"log.logformat.default".new()
