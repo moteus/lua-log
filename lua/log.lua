@@ -61,6 +61,7 @@ function Log.new(max_lvl, writer, formatter, logformat)
   max_lvl = assert(lvl2number ( max_lvl or LOG_LVL.INFO ) )
 
   formatter = formatter or function(msg) return msg end
+
   if not logformat then
     logformat = require"log.logformat.default".new()
   end
@@ -79,7 +80,25 @@ function Log.new(max_lvl, writer, formatter, logformat)
 
   function logger.writer() return writer end
 
+  function logger.formatter() return formatter end
+
   function logger.format() return logformat end
+
+  function logger.set_writer(value)
+    assert(value)
+    writer, value = value, writer
+    return value
+  end
+
+  function logger.set_formatter(value)
+    formatter, value = value, formatter
+    return value
+  end
+
+  function logger.set_format(value)
+    logformat, value = value, logformat
+    return value
+  end
 
   function logger.log(lvl, ...)
     local err lvl, err = lvl2number(lvl)
