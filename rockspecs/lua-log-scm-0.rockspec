@@ -67,6 +67,7 @@ build = {
     ["log.writer.net.zmq.pub"      ] = "lua/log/writer/net/zmq/pub.lua",
     ["log.writer.net.zmq.push"     ] = "lua/log/writer/net/zmq/push.lua",
     ["log.writer.net.zmq.srv.pub"  ] = "lua/log/writer/net/zmq/srv/pub.lua",
+    ["log.writer.prefix"           ] = "lua/log/writer/prefix.lua",
     ["log.writer.stderr"           ] = "lua/log/writer/stderr.lua",
     ["log.writer.stdout"           ] = "lua/log/writer/stdout.lua",
   }
