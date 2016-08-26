@@ -2,7 +2,8 @@
 -- @module log
 --
 
-local _VERSION = "0.1.6-dev"
+local _COPYRIGHT = "Copyright (C) 2013-2016 Alexey Melnichuk";
+local _VERSION   = "0.1.6-dev"
 
 local table  = require "table"
 local string = require "string"
@@ -47,7 +48,11 @@ local function lvl2number(lvl)
 end
 
 local Log = {}
-Log._VERSION = _VERSION
+Log._COPYRIGHT = _COPYRIGHT
+Log._NAME      = "log"
+Log._VERSION   = _VERSION
+Log._LICENSE   = "MIT"
+
 Log.LVL = LOG_LVL
 Log.LVL_NAMES = LOG_LVL_NAMES
 
