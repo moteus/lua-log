@@ -2,7 +2,7 @@
 -- @module log
 --
 
-local _VERSION = "0.1.5"
+local _VERSION = "0.1.6-dev"
 
 local table  = require "table"
 local string = require "string"
@@ -59,6 +59,10 @@ function Log.new(max_lvl, writer, formatter, logformat)
   end
 
   max_lvl = assert(lvl2number ( max_lvl or LOG_LVL.INFO ) )
+
+  if not writer then
+    writer = require"log.writer.stdout".new()
+  end
 
   if not formatter then
     formatter = require"log.formatter.default".new()
