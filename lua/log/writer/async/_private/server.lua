@@ -54,6 +54,8 @@ end)(...)
 ]=]
 
 local function run_server(server, maker, logformat, ...)
+  if type(maker) == 'function' then maker = string.dump(maker) end
+
   assert(type(server)    == 'string')
   assert(type(maker)     == 'string')
   assert(type(logformat) == 'string')
@@ -67,6 +69,8 @@ end
 local Z
 local function run_zserver(server, maker, logformat, ctx, ...)
   Z = Z or require "log.writer.net.zmq._private.compat"
+
+  if type(maker) == 'function' then maker = string.dump(maker) end
 
   assert(type(server)    == 'string')
   assert(type(maker)     == 'string')
