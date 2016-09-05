@@ -130,7 +130,7 @@ end
 
 function test_async_udp()
   local ok, status, msg = exec_code[[
-    local writer = require "log.writer.async.udp".new('127.0.0.1', 5555,
+    local writer = require "log.writer.async.udp".new('127.0.0.1', '5555',
       "return require 'log.writer.stdout'.new()"
     )
 
@@ -274,7 +274,7 @@ function test_do_not_raise_error_nil_argument()
   local formatter = require "log.formatter.pformat".new()
 
   local msg
-  assert_pass(function() msg = formatter("%s", nil) end)
+  assert_pass(function() msg = formatter("%d", nil) end)
   assert_string(msg)
 
   local expected = tostring(nil)
@@ -322,7 +322,7 @@ function test_do_not_raise_error_nil_argument_2()
   local formatter = require "log.formatter.pformat".new(true)
 
   local msg
-  assert_pass(function() msg = formatter("%s", nil) end)
+  assert_pass(function() msg = formatter("%d", nil) end)
   assert_string(msg)
 
   local expected = tostring(nil)
