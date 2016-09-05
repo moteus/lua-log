@@ -1,33 +1,55 @@
 language: c
 
-env:
-  global:
-    - LUAROCKS=2.2.0
+sudo: false
 
-  matrix:
-    - LUA=lua5.1
-    - LUA=lua5.2
-    - LUA=luajit
+addons:
+  apt:
+    packages:
+      - openssl
+      - libzmq3
+      - libzmq3-dev
+
+matrix:
+  include:
+    - compiler: ": Lua51"
+      env: LUA="lua 5.1"
+    - compiler: ": Lua52"
+      env: LUA="lua 5.2"
+    - compiler: ": Lua53"
+      env: LUA="lua 5.3"
+    - compiler: ": LuaJIT20"
+      env: LUA="luajit 2.0"
+    - compiler: ": LuaJIT21"
+      env: LUA="luajit 2.1"
+
+cache:
+  directories:
+    - here
+    - $HOME/.cache/pip
 
 branches:
   only:
     - master
 
 before_install:
-  - bash .travis/setup_lua.sh
-  - sudo apt-get install libzmq3 libzmq3-dev
+  - export CC=gcc
+  - pip install --user hererocks
+  - hererocks here -r^ --$LUA;
+  - export PATH=$PATH:$PWD/here/bin
 
 install:
-  - sudo luarocks install busted
-  - sudo luarocks install lunitx
-  - sudo luarocks install date
-  - sudo luarocks install luafilesystem
-  - sudo luarocks install lua-path
-  - sudo luarocks install lzmq
-  - sudo luarocks install lua-llthreads2
-  - sudo luarocks install lanes
-  - sudo luarocks make rockspecs/lua-log-scm-0.rockspec
-  - sudo luarocks install luasocket
+  - luarocks make rockspecs/lua-log-scm-0.rockspec
+
+before_script:
+  - luarocks show busted         || luarocks install busted
+  - luarocks show lunitx         || luarocks install lunitx
+  - luarocks show luafilesystem  || luarocks install luafilesystem
+  - luarocks show lua-path       || luarocks install lua-path
+  - luarocks show lzmq           || luarocks install lzmq
+  - luarocks show lua-llthreads2 || luarocks install lua-llthreads2
+  - luarocks show lanes          || luarocks install lanes
+  - luarocks show luasocket      || luarocks install luasocket
+  - luarocks show lpeg           || luarocks install lpeg
 
 script:
   - cd test

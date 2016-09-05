@@ -14,7 +14,7 @@ description = {
 }
 
 dependencies = {
-  "lua >= 5.1",
+  "lua >= 5.1, < 5.4",
   "date >= 2.0",
   -- "lpeg >= 0.10.0",
   -- "llthread >= 1.2",
