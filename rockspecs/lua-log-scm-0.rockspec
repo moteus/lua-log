@@ -30,6 +30,7 @@ build = {
   copy_directories = {
     "examples",
     "utils",
+    "doc",
   },
   modules = {
     ["log"                         ] = "lua/log.lua",
@@ -75,6 +76,3 @@ build = {
     ["log.writer.stdout"           ] = "lua/log/writer/stdout.lua",
   }
 }
-
-
-

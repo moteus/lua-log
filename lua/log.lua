@@ -3,7 +3,7 @@
 --
 
 local _COPYRIGHT = "Copyright (C) 2013-2016 Alexey Melnichuk";
-local _VERSION   = "0.1.6-dev"
+local _VERSION   = "0.1.6"
 
 local table  = require "table"
 local string = require "string"
@@ -95,6 +95,8 @@ function Log.new(max_lvl, writer, formatter, logformat)
 
   function logger.format() return logformat end
 
+  function logger.lvl() return max_lvl end
+
   function logger.set_writer(value)
     assert(value)
     writer, value = value, writer
@@ -102,11 +104,13 @@ function Log.new(max_lvl, writer, formatter, logformat)
   end
 
   function logger.set_formatter(value)
+    assert(value)
     formatter, value = value, formatter
     return value
   end
 
   function logger.set_format(value)
+    assert(value)
     logformat, value = value, logformat
     return value
   end
@@ -133,8 +137,6 @@ function Log.new(max_lvl, writer, formatter, logformat)
     for i = max_lvl+1, LOG_LVL_COUNT  do logger[ writer_names[i] .. '_dump'] = emptyfn end
     return true
   end
-
-  function logger.lvl() return max_lvl end
 
   assert(logger.set_lvl(max_lvl))
 

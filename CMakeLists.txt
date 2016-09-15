@@ -6,7 +6,9 @@ include ( lua )
 
 install_lua_module ( log                                lua/log.lua                                 )
 install_lua_module ( log.formatter.concat               lua/log/formatter/concat.lua                )
+install_lua_module ( log.formatter.default              lua/log/formatter/default.lua               )
 install_lua_module ( log.formatter.format               lua/log/formatter/format.lua                )
+install_lua_module ( log.formatter.pformat              lua/log/formatter/pformat.lua               )
 install_lua_module ( log.formatter.mix                  lua/log/formatter/mix.lua                   )
 install_lua_module ( log.logformat.default              lua/log/logformat/default.lua               )
 install_lua_module ( log.logformat.proxy                lua/log/logformat/proxy.lua                 )
@@ -40,6 +42,7 @@ install_lua_module ( log.writer.net.zmq._private.impl   lua/log/writer/net/zmq/_
 install_lua_module ( log.writer.net.zmq.pub             lua/log/writer/net/zmq/pub.lua              )
 install_lua_module ( log.writer.net.zmq.push            lua/log/writer/net/zmq/push.lua             )
 install_lua_module ( log.writer.net.zmq.srv.pub         lua/log/writer/net/zmq/srv/pub.lua          )
+install_lua_module ( log.writer.prefix                  lua/log/writer/prefix.lua                   )
 install_lua_module ( log.writer.stderr                  lua/log/writer/stderr.lua                   )
 install_lua_module ( log.writer.stdout                  lua/log/writer/stdout.lua                   )
 
