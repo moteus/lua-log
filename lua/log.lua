@@ -3,7 +3,7 @@
 --
 
 local _COPYRIGHT = "Copyright (C) 2013-2016 Alexey Melnichuk";
-local _VERSION   = "0.1.6"
+local _VERSION   = "0.1.7-dev"
 
 local table  = require "table"
 local string = require "string"
