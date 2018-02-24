@@ -8,7 +8,8 @@
 
 ## Usage ##
 
-Write to roll file and to console.
+### Write to roll file and to console ###
+
 ```lua
 local LOG = require "log".new(
   -- maximum log level
@@ -32,19 +33,25 @@ local LOG = require "log".new(
 LOG.error("some", "error")
 ```
 
-Write to file from separate thread.
+### Write to file from separate thread ###
+
 ```lua
 local LOG = require "log".new(
   require "log.writer.async.zmq".new(
     'inproc://async.logger',
-    "return require 'log.writer.file.by_day'.new('./logs', 'events.log', 5000)"
+    function() -- calls from separate thread/Lua state
+      return require 'log.writer.file.by_day'.new(
+        './logs', 'events.log', 5000
+      )
+    end
   )
 )
 
 LOG.error("some error")
 ```
 
-More complex example
+### More complex example ###
+
 ```lua
 local host = arg[1] or '127.0.0.1'
 local port = arg[2] or 514
@@ -86,42 +93,80 @@ LOG.notice("message has 2 file")
 print("Press enter ...") io.flush() io.read()
 ```
 
-***
+### Sendout logs to separate process/host
 
-##Dependences##
-###core###
+This example show how to send logs in 2 separate destination
+with 2 formats. Write to stdout as whell as to remote syslog
+server. In fact here no async on Lua side. Application write
+to network directly from main thread. But it is possible use
+one or more work threads that will do this.
+
+```Lua
+-- Buld writer with 2 destinations
+local writer = require "log.writer.list".new(
+  require "log.writer.format".new(
+    -- explicit set logformat to stdout writer
+    require "log.logformat.default".new(), 
+    require "log.writer.stdout".new()
+  ),
+  -- define network writer.
+  -- This writer has no explicit format so it will
+  -- use one defined for logger.
+  require "log.writer.net.udp".new('127.0.0.1', 514)
+)
+
+local function SYSLOG_NEW(level, ...)
+  return require "log".new(level, writer,
+    require "log.formatter.mix".new(),
+    require "log.logformat.syslog".new(...)
+  )
+end
+
+local SYSLOG = {
+  -- Define first syslog logger with some settings
+  KERN = SYSLOG_NEW('trace', 'kern'),
+  
+  -- Define second syslog logger with other settings
+  USER = SYSLOG_NEW('trace', 'USER'),
+}
+
+SYSLOG.KERN.emerg ('emergency message')
+SYSLOG.USER.alert ('alert message')
+```
+
+## Dependences ##
+
+### core ###
 * [LuaDate](https://github.com/Tieske/date)
 
-###writer.async.udp###
+### writer.async.udp ###
 * [llthreads2](http://github.com/moteus/lua-llthreads2)
 * or [llthreads](http://github.com/Neopallium/lua-llthreads)
 * writer.net.udp
 
-###writer.async.zmq###
+### writer.async.zmq ###
 * [llthreads2](http://github.com/moteus/lua-llthreads2)
 * or [llthreads](http://github.com/Neopallium/lua-llthreads)
 * writer.net.zmq
 
-###writer.async.lane###
+### writer.async.lane ###
 * [LuaLanes](https://github.com/LuaLanes/lanes) - This is experemental writer
 
-###writer.console.color###
+### writer.console.color ###
 * ansicolors
 * or lua-conio
 * or cio (Windows only)
 
-###writer.file.by_day###
+### writer.file.by_day ###
 * [lfs](http://keplerproject.github.com/luafilesystem)
 
-###writer.net.udp###
+### writer.net.udp ###
 * [LuaSocket](http://www.impa.br/~diego/software/luasocket)
 
-###writer.net.zmq###
+### writer.net.zmq ###
 * [lzmq](http://github.com/moteus/lzmq)
 * or [lua-zmq](http://github.com/Neopallium/lua-zmq)
 
-###writer.net.smtp###
+### writer.net.smtp ###
 * [LuaSocket](http://www.impa.br/~diego/software/luasocket)
 * [lua-sendmail](http://github.com/moteus/lua-sendmail)
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/moteus/lua-log/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
