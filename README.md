@@ -44,9 +44,8 @@ local writer = require "log.writer.list".new(
 )
 
 local function SYSLOG_NEW(level, ...)
-  return require "log".new(
-    level,
-    writer, require "log.formatter.mix".new(),
+  return require "log".new(level, writer,
+    require "log.formatter.mix".new(),
     require "log.logformat.syslog".new(...)
   )
 end
