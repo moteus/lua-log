@@ -1,4 +1,4 @@
-Asynchronous logging library for Lua 5.1/5.2
+# Asynchronous logging library for Lua
 
 ***
 
